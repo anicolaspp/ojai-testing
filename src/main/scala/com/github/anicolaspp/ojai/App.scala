@@ -1,30 +1,45 @@
 package com.github.anicolaspp.ojai
 
-//package com.mapr.ojai.store.impl._
-
-import com.mapr.ojai.store.impl.InMemDriver
+import com.mapr.ojai.store.impl.InMemoryDriver
 import org.ojai.store._
 
 import scala.collection.JavaConverters._
 
 object App {
   def main(args: Array[String]): Unit = {
-    println("HELLO IN MEM OJAI")
 
-    DriverManager.registerDriver(InMemDriver)
+    DriverManager.registerDriver(InMemoryDriver)
 
     val connection = DriverManager.getConnection("ojai:anicolaspp:mem")
 
-    val doc = connection.newDocument().set("name", "nico").set("age", 30)
+    val doc = connection.newDocument().set("name", "nico").set("age", 30).set("_id", "1")
 
     val store = connection.getStore("anicolaspp/mem")
 
-    store.delete("-1")
+    store.insert(doc)
 
-    val result = store
+    assert(store.find().asScala.toList.length == 1)
+
+    store.insert(connection.newDocument().set("name", "nico").set("age", 30).set("_id", "2"))
+
+    assert(store.find().asScala.toList.length == 2)
+
+    store.delete("1")
+
+    assert(store.find().asScala.toList.length == 1)
+
+    store.increment("2", "age", 2)
+    store.increment("a", "asd", 2)
+
+
+    store
       .find()
       .asScala
       .foreach(println)
+
+
+
+
     //
     //        connection
     //          .newQuery()
@@ -38,7 +53,6 @@ object App {
     //          .build()
     //      )
 
-    println(doc.asJsonString())
   }
 }
 

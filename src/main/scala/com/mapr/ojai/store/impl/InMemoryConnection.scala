@@ -5,7 +5,7 @@ import java.util
 import org.ojai.store._
 import org.ojai.{Document, DocumentBuilder}
 
-class InMemConnection(driver: Driver) extends Connection {
+class InMemoryConnection(driver: Driver) extends Connection {
   override def getValueBuilder: ValueBuilder = driver.getValueBuilder
 
   override def newDocument(): Document = driver.newDocument()

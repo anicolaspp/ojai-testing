@@ -311,6 +311,8 @@ public class InMemoryStore implements DocumentStore {
     
     @Override
     public void insert(String _id, Document doc) throws StoreException {
+        checkId(_id);
+        
         if (index(_id) < 0) {
             documents.add(doc);
         }
@@ -318,6 +320,8 @@ public class InMemoryStore implements DocumentStore {
     
     @Override
     public void insert(Value _id, Document doc) throws StoreException {
+        checkId(_id);
+        
         insert(_id.getString(), doc);
     }
     
@@ -428,6 +432,7 @@ public class InMemoryStore implements DocumentStore {
         Document doc = findById(_id);
     
         if (doc != null) {
+            
             if (doc.getValue(field).getType() == Value.Type.INT) {
                 int value = doc.getInt(field);
             
@@ -564,5 +569,17 @@ public class InMemoryStore implements DocumentStore {
     @Override
     public void close() throws StoreException {
     
+    }
+    
+    private void checkId(Value _id) {
+        if (_id == null) {
+            throw new IllegalArgumentException("Missing _id");
+        }
+    }
+    
+    private void checkId(String _id) {
+        if (_id == null || _id.isEmpty()) {
+            throw new IllegalArgumentException("Missing _id");
+        }
     }
 }

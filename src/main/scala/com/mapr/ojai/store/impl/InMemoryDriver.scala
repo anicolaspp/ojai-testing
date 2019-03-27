@@ -1,14 +1,14 @@
 package com.mapr.ojai.store.impl
 
-import java.{lang, util}
+import java.util
 
 import com.mapr.db.impl.MapRDBImpl
-import org.ojai.json.impl.{JsonDocumentStream, JsonStreamDocumentReader, JsonValueBuilder}
+import org.ojai.json.impl.JsonValueBuilder
 import org.ojai.store._
-//import org.ojai.store._
-import org.ojai.{Document, DocumentBuilder, DocumentListener, DocumentReader, DocumentStream, FieldPath, Value}
+import org.ojai.{Document, DocumentBuilder}
 
-object InMemDriver extends Driver {
+object InMemoryDriver extends Driver {
+  
   override def getName = "InMemDriver"
 
   override def getValueBuilder: ValueBuilder = JsonValueBuilder.INSTANCE
@@ -37,6 +37,6 @@ object InMemDriver extends Driver {
 
   override def accepts(url: String) = url == "ojai:anicolaspp:mem"
 
-  override def connect(url: String, options: Document): Connection = new InMemConnection(this)
+  override def connect(url: String, options: Document): Connection = new InMemoryConnection(this)
 }
 
