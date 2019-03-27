@@ -23,7 +23,6 @@ import java.util.Iterator;
 
 public class InMemoryStore implements DocumentStore {
     
-    
     private ArrayList<Document> documents = new ArrayList<>();
     
     

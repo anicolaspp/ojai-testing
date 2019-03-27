@@ -13,4 +13,3 @@ class DriverManagerTest extends FlatSpec with Matchers {
     DriverManager.getConnection("ojai:anicolaspp:mem").isInstanceOf[InMemoryConnection] should be(true)
   }
 }
-
