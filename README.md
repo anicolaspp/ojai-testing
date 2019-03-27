@@ -55,8 +55,31 @@ Notice we are mixing in the `OjaiTesting` trait to auto register the correct dri
 After we have gained access to the `DocumentStore` we should be able to run OJAI queries on it. 
 
 ```scala
-store
-  .find()
-  .asScala
-  .foreach(println)
+
+object Run extends OjaiTesting {
+
+ def run() = {
+  store = storeHandler
+
+  val doc = connection.newDocument().set("name", "nico").set("age", 30).set("_id", "1")
+
+  store.insert(doc)
+  assert(store.find().asScala.toList.length == 1)
+
+  store.insert(connection.newDocument().set("name", "nico").set("age", 30).set("_id", "2"))
+  assert(store.find().asScala.toList.length == 2)
+
+  store.delete("1")
+  assert(store.find().asScala.toList.length == 1)
+
+  store.increment("2", "age", 2)
+  store.increment("a", "asd", 2)
+
+  store
+   .find()
+   .asScala
+   .foreach(println)
+ } 
+ 
+}
 ```
