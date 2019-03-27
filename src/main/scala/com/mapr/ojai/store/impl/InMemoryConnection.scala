@@ -30,7 +30,21 @@ class InMemoryConnection(driver: Driver) extends Connection {
 
   override def close(): Unit = {}
 
-  override def getStore(storeName: String): DocumentStore = if (storeName == "anicolaspp/mem") {
-    new InMemoryStore()
-  } else throw new IllegalArgumentException("storeName should be anicolaspp/mem")
+  override def getStore(storeName: String): DocumentStore = {
+    if (!storeName.startsWith("anicolaspp")){
+      throw new IllegalArgumentException("storeName should be anicolaspp")
+    }
+
+    val store = new InMemoryStore(storeName)
+
+    storeRegistry.putStore(storeName, store)
+
+    storeRegistry.getStore(storeName).get
+  }
+
+  private val storeRegistry = StoreRegistry()
 }
+
+
+
+

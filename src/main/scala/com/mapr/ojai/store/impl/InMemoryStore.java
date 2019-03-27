@@ -23,8 +23,19 @@ import java.util.Iterator;
 
 public class InMemoryStore implements DocumentStore {
     
-    private ArrayList<Document> documents = new ArrayList<>();
     
+    private ArrayList<Document> documents = new ArrayList<>();
+    private String storeName;
+    
+    public InMemoryStore(String storeName) {
+        
+        this.storeName = storeName;
+    }
+    
+    @Override
+    public String toString() {
+        return "InMemoryStore:" + storeName;
+    }
     
     @Override
     public boolean isReadOnly() {
@@ -414,13 +425,13 @@ public class InMemoryStore implements DocumentStore {
     @Override
     public void increment(String _id, String field, short inc) throws StoreException {
         Document doc = findById(_id);
-    
+        
         if (doc != null) {
             if (doc.getValue(field).getType() == Value.Type.SHORT) {
                 short value = doc.getShort(field);
-            
+                
                 value += inc;
-            
+                
                 doc.set(field, value);
             }
         }
@@ -429,14 +440,14 @@ public class InMemoryStore implements DocumentStore {
     @Override
     public void increment(String _id, String field, int inc) throws StoreException {
         Document doc = findById(_id);
-    
+        
         if (doc != null) {
             
             if (doc.getValue(field).getType() == Value.Type.INT) {
                 int value = doc.getInt(field);
-            
+                
                 value += inc;
-            
+                
                 doc.set(field, value);
             }
         }
@@ -445,13 +456,13 @@ public class InMemoryStore implements DocumentStore {
     @Override
     public void increment(String _id, String field, long inc) throws StoreException {
         Document doc = findById(_id);
-    
+        
         if (doc != null) {
             if (doc.getValue(field).getType() == Value.Type.LONG) {
                 long value = doc.getLong(field);
-            
+                
                 value += inc;
-            
+                
                 doc.set(field, value);
             }
         }
@@ -460,13 +471,13 @@ public class InMemoryStore implements DocumentStore {
     @Override
     public void increment(String _id, String field, float inc) throws StoreException {
         Document doc = findById(_id);
-    
+        
         if (doc != null) {
             if (doc.getValue(field).getType() == Value.Type.FLOAT) {
                 float value = doc.getFloat(field);
-            
+                
                 value += inc;
-            
+                
                 doc.set(field, value);
             }
         }
@@ -475,13 +486,13 @@ public class InMemoryStore implements DocumentStore {
     @Override
     public void increment(String _id, String field, double inc) throws StoreException {
         Document doc = findById(_id);
-    
+        
         if (doc != null) {
             if (doc.getValue(field).getType() == Value.Type.DOUBLE) {
                 double value = doc.getDouble(field);
-            
+                
                 value += inc;
-            
+                
                 doc.set(field, value);
             }
         }
@@ -490,19 +501,19 @@ public class InMemoryStore implements DocumentStore {
     @Override
     public void increment(String _id, String field, BigDecimal inc) throws StoreException {
         Document doc = findById(_id);
-    
+        
         if (doc != null) {
             if (doc.getValue(field).getType() == Value.Type.DECIMAL) {
                 BigDecimal value = doc.getDecimal(field);
-            
-                doc.set(field,  value.add(inc));
+                
+                doc.set(field, value.add(inc));
             }
         }
     }
     
     @Override
     public void increment(Value _id, String field, byte inc) throws StoreException {
-       increment(_id.getString(), field, inc);
+        increment(_id.getString(), field, inc);
     }
     
     @Override

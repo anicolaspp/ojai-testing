@@ -58,6 +58,23 @@ object App {
 
 
 
+trait OjaiTesting {
+  
+  lazy val connection: Connection = {
+    OjaiTesting.registerDriver
+
+    DriverManager.getConnection("ojai:anicolaspp:mem")
+  }
+
+  def storeHandler(): DocumentStore = connection.getStore("anicolaspp/mem")
+}
+
+object OjaiTesting {
+
+
+  def registerDriver = DriverManager.registerDriver(InMemoryDriver)
+
+}
 
 
 

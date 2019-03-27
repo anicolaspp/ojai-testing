@@ -1,6 +1,7 @@
 package tests
 
-import com.mapr.ojai.store.impl.{InMemoryDriver, InMemoryStore}
+import com.github.anicolaspp.ojai.OjaiTesting
+import com.mapr.ojai.store.impl.{InMemoryConnection, InMemoryDriver, InMemoryStore}
 import org.ojai.store.DriverManager
 import org.scalatest.{FlatSpec, Matchers}
 
@@ -35,3 +36,5 @@ class ConnectionTest extends FlatSpec with Matchers {
   }
 
 }
+
+

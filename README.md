@@ -10,6 +10,21 @@ In order to use our in memory store we should first register the correct driver 
  DriverManager.registerDriver(InMemDriver)
 ```
 
+Alternatively, you can mix in the `OjaiTesting` trait and it will automatically register our driver.
+
+```scala
+class AutoRegisterForTest extends FlatSpec with OjaiTesting with Matchers {
+
+  it should "be ready" in {
+
+    connection.isInstanceOf[InMemoryConnection] should be (true)
+
+    connection.getStore("anicolaspp/mem") should be (storeHandler())
+  }
+
+}
+```
+
 Then we can get a `Connection` and a `DocumentStore` as we normally do when connecting to a MapR Database table.
 
 ```scala

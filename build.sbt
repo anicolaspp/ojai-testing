@@ -2,7 +2,7 @@ import ReleaseTransformations._
 
 name := "ojai-testing"
 
-scalaVersion := "2.12.8"
+scalaVersion := "2.11.8"
 
 
 //lazy val supportedScalaVersions = Seq(scalaVersion., "2.12")
@@ -30,12 +30,14 @@ lazy val maprdbconnector = project.in(file("."))
 
     publishMavenStyle := true,
 
-    publishTo in ThisBuild := Some(
-      if (isSnapshot.value)
-        Opts.resolver.sonatypeSnapshots
-      else
-        Opts.resolver.sonatypeStaging
-    ),
+    publishTo := Some(Resolver.file("file", new File("/Users/nperez/tmp"))),
+
+//    publishTo in ThisBuild := Some(
+//      if (isSnapshot.value)
+//        Opts.resolver.sonatypeSnapshots
+//      else
+//        Opts.resolver.sonatypeStaging
+//    ),
 
     publishArtifact in Test := false,
 
