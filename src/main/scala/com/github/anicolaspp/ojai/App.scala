@@ -19,6 +19,8 @@ object App {
 
     val store = connection.getStore("table")
 
+    store.delete("-1")
+
     val result = store
       .find()
       .asScala

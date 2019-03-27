@@ -1,6 +1,5 @@
 package com.mapr.ojai.store.impl;
 
-import com.mapr.db.impl.ConditionImpl;
 import com.mapr.db.impl.MapRDBImpl;
 import org.ojai.Document;
 import org.ojai.DocumentListener;
@@ -21,13 +20,11 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
 
 public class InMemoryStore implements DocumentStore {
     
     
-    private List<Document> documents = new ArrayList<>();
+    private ArrayList<Document> documents = new ArrayList<>();
     
     
     @Override
@@ -141,19 +138,7 @@ public class InMemoryStore implements DocumentStore {
     
     @Override
     public QueryResult find(Query query) throws StoreException {
-        String jsonQuery = query.asJsonString();
-        
-        OjaiQuery ojaiQuery = (OjaiQuery) query;
-        
-        
-        ConditionImpl condition = ojaiQuery.getCondition();
-        
-        
-        Set<FieldPath> projections = ojaiQuery.getProjectedFieldSet();
-        
-        Document queryDoc = MapRDBImpl.newDocument(query.asJsonString());
-        
-        return null;
+        throw new UnsupportedOperationException();
     }
     
     @Override
@@ -266,124 +251,146 @@ public class InMemoryStore implements DocumentStore {
     
     }
     
+    private int index(String _id) {
+        int idx = -1;
+        
+        for (Document doc : documents) {
+            idx++;
+            
+            if (doc.getIdString().equals(_id)) {
+                return idx;
+            }
+        }
+        
+        return -1;
+    }
+    
     @Override
     public void delete(String _id) throws StoreException {
-    
+        int idx = index(_id);
+        
+        if (idx >= 0) {
+            documents.remove(idx);
+        }
     }
     
     @Override
     public void delete(Value _id) throws StoreException {
-    
+        delete(_id.getString());
     }
     
     @Override
     public void delete(Document doc) throws StoreException {
-    
+        delete(doc.getId());
     }
     
     @Override
     public void delete(Document doc, FieldPath fieldAsKey) throws StoreException {
-    
+        delete(doc.getValue(fieldAsKey));
     }
     
     @Override
     public void delete(Document doc, String fieldAsKey) throws StoreException {
-    
+        delete(doc.getValue(fieldAsKey));
     }
     
     @Override
     public void delete(DocumentStream stream) throws MultiOpException {
-    
+        stream.forEach(this::delete);
     }
     
     @Override
     public void delete(DocumentStream stream, FieldPath fieldAsKey) throws MultiOpException {
-    
+        stream.forEach(d -> delete(d, fieldAsKey));
     }
     
     @Override
     public void delete(DocumentStream stream, String fieldAsKey) throws MultiOpException {
-    
+        stream.forEach(d -> delete(d, fieldAsKey));
     }
     
     @Override
     public void insert(String _id, Document doc) throws StoreException {
-    
+        if (index(_id) < 0) {
+            documents.add(doc);
+        }
     }
     
     @Override
     public void insert(Value _id, Document doc) throws StoreException {
-    
+        insert(_id.getString(), doc);
     }
     
     @Override
     public void insert(Document doc) throws StoreException {
-    
+        insert(doc.getId(), doc);
     }
     
     @Override
     public void insert(Document doc, FieldPath fieldAsKey) throws StoreException {
-    
+        insert(doc.getValue(fieldAsKey), doc);
     }
     
     @Override
     public void insert(Document doc, String fieldAsKey) throws StoreException {
-    
+        insert(doc.getValue(fieldAsKey), doc);
     }
     
     @Override
     public void insert(DocumentStream stream) throws MultiOpException {
-    
+        stream.forEach(this::insert);
     }
     
     @Override
     public void insert(DocumentStream stream, FieldPath fieldAsKey) throws MultiOpException {
-    
+        stream.forEach(d -> insert(d.getValue(fieldAsKey), d));
     }
     
     @Override
     public void insert(DocumentStream stream, String fieldAsKey) throws MultiOpException {
-    
+        stream.forEach(d -> insert(d.getValue(fieldAsKey), d));
     }
     
     @Override
     public void replace(String _id, Document doc) throws StoreException {
-    
+        delete(_id);
+        
+        documents.add(doc);
     }
     
     @Override
     public void replace(Value _id, Document doc) throws StoreException {
-    
+        replace(_id.getString(), doc);
     }
     
     @Override
     public void replace(Document doc) throws StoreException {
-    
+        replace(doc.getId(), doc);
     }
     
     @Override
     public void replace(Document doc, FieldPath fieldAsKey) throws StoreException {
-    
+        replace(doc.getValue(fieldAsKey), doc);
     }
     
     @Override
     public void replace(Document doc, String fieldAsKey) throws StoreException {
-    
+        replace(doc.getValue(fieldAsKey), doc);
     }
     
     @Override
     public void replace(DocumentStream stream) throws MultiOpException {
-    
+        stream.forEach(this::replace);
     }
     
     @Override
     public void replace(DocumentStream stream, FieldPath fieldAsKey) throws MultiOpException {
-    
+        stream.forEach(doc -> replace(doc.getValue(fieldAsKey), doc));
     }
     
     @Override
     public void replace(DocumentStream stream, String fieldAsKey) throws MultiOpException {
-    
+        stream.forEach(doc -> replace(doc.getValue(fieldAsKey), doc));
     }
     
     @Override
