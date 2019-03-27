@@ -13,7 +13,7 @@ object App {
 
     DriverManager.registerDriver(InMemDriver)
 
-    val connection = DriverManager.getConnection("ojai:mem:@")
+    val connection = DriverManager.getConnection("ojai:anicolaspp:mem")
 
     val doc = connection.newDocument().set("name", "nico").set("age", 30)
 
