@@ -19,7 +19,7 @@ class AutoRegisterForTest extends FlatSpec with OjaiTesting with Matchers {
 
     connection.isInstanceOf[InMemoryConnection] should be (true)
 
-    connection.getStore("anicolaspp/mem") should be (storeHandler())
+    connection.getStore("anicolaspp/mem") should be (storeHandler("anicolaspp/mem"))
   }
 
 }
@@ -32,7 +32,25 @@ val connection = DriverManager.getConnection("ojai:anicolaspp:mem")
 
 val store = connection.getStore("anicolaspp/mem")
 ```
-The `storeName` being passed is must be `anicolaspp/mem`.
+The `storeName` being passed is must start with `anicolaspp`.
+
+There will be only a single instance per store name so the following holds.
+
+```scala
+class SomeTests extends FlatSpec with OjaiTesting with Matchers {
+
+  it should "keep track of stores" in {
+    val store = connection.getStore("anicolaspp/my_store")
+
+    store should be (connection.getStore("anicolaspp/my_store"))
+    
+    storeHandler("anicolaspp/a_store") should be (connection.getStore("anicolaspp/a_store"))
+    
+    store should not be (storeHandler("anicolaspp/a_store"))
+  }
+}
+```
+Notice we are mixing in the `OjaiTesting` trait to auto register the correct driver and to have access to `connection` and `storeHandler`.
 
 After we have gained access to the `DocumentStore` we should be able to run OJAI queries on it. 
 
