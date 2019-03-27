@@ -32,7 +32,7 @@ val connection = DriverManager.getConnection("ojai:anicolaspp:mem")
 
 val store = connection.getStore("anicolaspp/mem")
 ```
-The `storeName` being passed is must start with `anicolaspp`.
+The `storeName` being passed must start with `anicolaspp`.
 
 There will be only a single instance per store name so the following holds.
 
