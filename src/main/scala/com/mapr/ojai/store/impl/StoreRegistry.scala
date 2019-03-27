@@ -4,9 +4,11 @@ import org.ojai.store.DocumentStore
 
 trait StoreRegistry {
 
-  def putStore(storeName: String, store: DocumentStore)
+  def putStore(storeName: String, store: DocumentStore): Unit
 
   def getStore(storeName: String): Option[DocumentStore]
+
+  def removeStore(storeName: String): Boolean
 }
 
 object StoreRegistry {
@@ -22,6 +24,8 @@ object StoreRegistry {
     }
 
     override def getStore(storeName: String): Option[DocumentStore] = stores.get(storeName)
+
+    override def removeStore(storeName: String): Boolean = stores.remove(storeName).isDefined
   }
 
 }

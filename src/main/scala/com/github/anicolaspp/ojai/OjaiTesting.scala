@@ -6,17 +6,10 @@ import org.ojai.store.{Connection, DocumentStore, DriverManager}
 trait OjaiTesting {
 
   lazy val connection: Connection = {
-    OjaiTesting.registerDriver
+    DriverManager.registerDriver(InMemoryDriver)
 
     DriverManager.getConnection("ojai:anicolaspp:mem")
   }
 
   def storeHandler(storeName: String): DocumentStore = connection.getStore(storeName)
-}
-
-object OjaiTesting {
-
-
-  def registerDriver = DriverManager.registerDriver(InMemoryDriver)
-
 }
