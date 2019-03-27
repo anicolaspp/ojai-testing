@@ -203,42 +203,42 @@ public class InMemoryStore implements DocumentStore {
     
     @Override
     public void insertOrReplace(Document doc) throws StoreException {
-    
+        replace(doc);
     }
     
     @Override
     public void insertOrReplace(String _id, Document r) throws StoreException {
-    
+        replace(_id, r);
     }
     
     @Override
     public void insertOrReplace(Value _id, Document doc) throws StoreException {
-    
+        replace(_id, doc);
     }
     
     @Override
     public void insertOrReplace(Document doc, FieldPath fieldAsKey) throws StoreException {
-    
+        replace(doc, fieldAsKey);
     }
     
     @Override
     public void insertOrReplace(Document doc, String fieldAsKey) throws StoreException {
-    
+        replace(doc, fieldAsKey);
     }
     
     @Override
     public void insertOrReplace(DocumentStream stream) throws MultiOpException {
-    
+        replace(stream);
     }
     
     @Override
     public void insertOrReplace(DocumentStream stream, FieldPath fieldAsKey) throws MultiOpException {
-    
+        replace(stream, fieldAsKey);
     }
     
     @Override
     public void insertOrReplace(DocumentStream stream, String fieldAsKey) throws MultiOpException {
-    
+        replace(stream, fieldAsKey);
     }
     
     @Override
@@ -248,7 +248,7 @@ public class InMemoryStore implements DocumentStore {
     
     @Override
     public void update(Value _id, DocumentMutation mutation) throws StoreException {
-    
+        
     }
     
     private int index(String _id) {
@@ -395,72 +395,142 @@ public class InMemoryStore implements DocumentStore {
     
     @Override
     public void increment(String _id, String field, byte inc) throws StoreException {
-    
+        Document doc = findById(_id);
+        
+        if (doc != null) {
+            if (doc.getValue(field).getType() == Value.Type.BYTE) {
+                byte value = doc.getByte(field);
+                
+                value += inc;
+                
+                doc.set(field, value);
+            }
+        }
     }
     
     @Override
     public void increment(String _id, String field, short inc) throws StoreException {
+        Document doc = findById(_id);
     
+        if (doc != null) {
+            if (doc.getValue(field).getType() == Value.Type.SHORT) {
+                short value = doc.getShort(field);
+            
+                value += inc;
+            
+                doc.set(field, value);
+            }
+        }
     }
     
     @Override
     public void increment(String _id, String field, int inc) throws StoreException {
+        Document doc = findById(_id);
     
+        if (doc != null) {
+            if (doc.getValue(field).getType() == Value.Type.INT) {
+                int value = doc.getInt(field);
+            
+                value += inc;
+            
+                doc.set(field, value);
+            }
+        }
     }
     
     @Override
     public void increment(String _id, String field, long inc) throws StoreException {
+        Document doc = findById(_id);
     
+        if (doc != null) {
+            if (doc.getValue(field).getType() == Value.Type.LONG) {
+                long value = doc.getLong(field);
+            
+                value += inc;
+            
+                doc.set(field, value);
+            }
+        }
     }
     
     @Override
     public void increment(String _id, String field, float inc) throws StoreException {
+        Document doc = findById(_id);
     
+        if (doc != null) {
+            if (doc.getValue(field).getType() == Value.Type.FLOAT) {
+                float value = doc.getFloat(field);
+            
+                value += inc;
+            
+                doc.set(field, value);
+            }
+        }
     }
     
     @Override
     public void increment(String _id, String field, double inc) throws StoreException {
+        Document doc = findById(_id);
     
+        if (doc != null) {
+            if (doc.getValue(field).getType() == Value.Type.DOUBLE) {
+                double value = doc.getDouble(field);
+            
+                value += inc;
+            
+                doc.set(field, value);
+            }
+        }
     }
     
     @Override
     public void increment(String _id, String field, BigDecimal inc) throws StoreException {
+        Document doc = findById(_id);
     
+        if (doc != null) {
+            if (doc.getValue(field).getType() == Value.Type.DECIMAL) {
+                BigDecimal value = doc.getDecimal(field);
+            
+                value.add(inc);
+            
+                doc.set(field, value);
+            }
+        }
     }
     
     @Override
     public void increment(Value _id, String field, byte inc) throws StoreException {
-    
+       increment(_id.getString(), field, inc);
     }
     
     @Override
     public void increment(Value _id, String field, short inc) throws StoreException {
-    
+        increment(_id.getString(), field, inc);
     }
     
     @Override
     public void increment(Value _id, String field, int inc) throws StoreException {
-    
+        increment(_id.getString(), field, inc);
     }
     
     @Override
     public void increment(Value _id, String field, long inc) throws StoreException {
-    
+        increment(_id.getString(), field, inc);
     }
     
     @Override
     public void increment(Value _id, String field, float inc) throws StoreException {
-    
+        increment(_id.getString(), field, inc);
     }
     
     @Override
     public void increment(Value _id, String field, double inc) throws StoreException {
-    
+        increment(_id.getString(), field, inc);
     }
     
     @Override
     public void increment(Value _id, String field, BigDecimal inc) throws StoreException {
-    
+        increment(_id.getString(), field, inc);
     }
     
     @Override
