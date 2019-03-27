@@ -30,5 +30,7 @@ class InMemConnection(driver: Driver) extends Connection {
 
   override def close(): Unit = {}
 
-  override def getStore(storeName: String): DocumentStore = new InMemoryStore()
+  override def getStore(storeName: String): DocumentStore = if (storeName == "anicolaspp/mem") {
+    new InMemoryStore()
+  } else throw new IllegalArgumentException("storeName should be anicolaspp/mem")
 }

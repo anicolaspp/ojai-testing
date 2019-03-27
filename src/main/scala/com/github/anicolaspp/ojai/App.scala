@@ -17,7 +17,7 @@ object App {
 
     val doc = connection.newDocument().set("name", "nico").set("age", 30)
 
-    val store = connection.getStore("table")
+    val store = connection.getStore("anicolaspp/mem")
 
     store.delete("-1")
 

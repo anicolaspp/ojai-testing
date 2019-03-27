@@ -491,9 +491,7 @@ public class InMemoryStore implements DocumentStore {
             if (doc.getValue(field).getType() == Value.Type.DECIMAL) {
                 BigDecimal value = doc.getDecimal(field);
             
-                value.add(inc);
-            
-                doc.set(field, value);
+                doc.set(field,  value.add(inc));
             }
         }
     }
