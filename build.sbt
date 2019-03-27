@@ -1,4 +1,5 @@
 import ReleaseTransformations._
+
 name := "ojai-testing"
 
 scalaVersion := "2.12.8"
@@ -12,9 +13,9 @@ organization in ThisBuild := "com.github.anicolaspp"
 lazy val maprdbconnector = project.in(file("."))
   .settings(
 
-    homepage := Some(url("https://github.com/anicolaspp/MapRDBConnector")),
+    homepage := Some(url("https://github.com/anicolaspp/ojai-testing")),
 
-    scmInfo := Some(ScmInfo(url("https://github.com/anicolaspp/MapRDBConnector"), "git@github.com:anicolaspp/MapRDBConnector.git")),
+    scmInfo := Some(ScmInfo(url("https://github.com/anicolaspp/ojai-testing"), "git@github.com:anicolaspp/ojai-testing.git")),
 
     pomExtra := <developers>
       <developer>
@@ -29,14 +30,12 @@ lazy val maprdbconnector = project.in(file("."))
 
     publishMavenStyle := true,
 
-    publishTo := Some(Resolver.file("file", new File("/Users/nperez/maven"))),
-    //
-    //    publishTo in ThisBuild := Some(
-    //      if (isSnapshot.value)
-    //        Opts.resolver.sonatypeSnapshots
-    //      else
-    //        Opts.resolver.sonatypeStaging
-    //    ),
+    publishTo in ThisBuild := Some(
+      if (isSnapshot.value)
+        Opts.resolver.sonatypeSnapshots
+      else
+        Opts.resolver.sonatypeStaging
+    ),
 
     publishArtifact in Test := false,
 
@@ -47,20 +46,18 @@ lazy val maprdbconnector = project.in(file("."))
     releaseCrossBuild := true,
 
     releaseProcess := Seq[ReleaseStep](
-      checkSnapshotDependencies, // : ReleaseStep
-      inquireVersions, // : ReleaseStep
-      runClean, // : ReleaseStep
-      runTest, // : ReleaseStep
-      setReleaseVersion, // : ReleaseStep
-      commitReleaseVersion, // : ReleaseStep, performs the initial git checks
-      tagRelease, // : ReleaseStep
-      publishArtifacts, // : ReleaseStep, checks whether `publishTo` is properly set up
-      setNextVersion, // : ReleaseStep
-      commitNextVersion, // : ReleaseStep
-      pushChanges // : ReleaseStep, also checks that an upstream branch is properly configured
+      checkSnapshotDependencies,          // : ReleaseStep
+      inquireVersions,                    // : ReleaseStep
+      runClean,                           // : ReleaseStep
+      runTest,                            // : ReleaseStep
+      setReleaseVersion,                  // : ReleaseStep
+      commitReleaseVersion,               // : ReleaseStep, performs the initial git checks
+      tagRelease,                         // : ReleaseStep
+      publishArtifacts,                   // : ReleaseStep, checks whether `publishTo` is properly set up
+      setNextVersion,                     // : ReleaseStep
+      commitNextVersion,                  // : ReleaseStep
+      pushChanges                         // : ReleaseStep, also checks that an upstream branch is properly configured
     ),
-
-    //    crossScalaVersions := supportedScalaVersions,
 
     resolvers += "MapR Releases" at "http://repository.mapr.com/maven/",
 
@@ -68,7 +65,6 @@ lazy val maprdbconnector = project.in(file("."))
 
     libraryDependencies ++= Seq(
       "com.mapr.ojai" % "mapr-ojai-driver" % "6.0.1-mapr" % "provided",
-//      "org.apache.hadoop" % "hadoop-client" % "2.7.0-mapr-1808",
       "org.ojai" % "ojai" % "3.0-mapr-1808",
       "org.ojai" % "ojai-scala" % "3.0-mapr-1808",
 
