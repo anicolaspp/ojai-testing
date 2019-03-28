@@ -23,7 +23,7 @@ object InMemoryDriver extends Driver {
 
   override def newDocumentBuilder(): DocumentBuilder = MapRDBImpl.newDocumentBuilder()
 
-  override def newMutation(): DocumentMutation = MapRDBImpl.newMutation()
+  override def newMutation(): DocumentMutation = new InMemoryMutation()
 
   override def newCondition(): QueryCondition = MapRDBImpl.newCondition()
 

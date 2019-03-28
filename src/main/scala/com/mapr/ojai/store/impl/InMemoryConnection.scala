@@ -35,7 +35,7 @@ class InMemoryConnection(driver: Driver) extends Connection {
       throw new IllegalArgumentException("storeName should start with 'anicolaspp'")
     }
 
-    val store = new InMemoryStore(storeName)
+    val store = new InMemoryStore(storeName, this)
 
     storeRegistry.putStore(storeName, store)
 

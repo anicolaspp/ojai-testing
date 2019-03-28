@@ -5,20 +5,14 @@ import com.mapr.ojai.store.impl.{InMemoryConnection, InMemoryDriver, InMemorySto
 import org.ojai.store.DriverManager
 import org.scalatest.{FlatSpec, Matchers}
 
-class ConnectionTest extends FlatSpec with Matchers {
-
-  DriverManager.registerDriver(InMemoryDriver)
+class ConnectionTest extends FlatSpec with OjaiTesting with Matchers {
 
   "Connection" should "create document" in {
-
-    val connection = DriverManager.getConnection("ojai:anicolaspp:mem")
 
     connection.newDocument().asJsonString() should be("{}")
   }
 
   it should "create document with fields" in {
-
-    val connection = DriverManager.getConnection("ojai:anicolaspp:mem")
 
     connection
       .newDocument()
@@ -29,12 +23,23 @@ class ConnectionTest extends FlatSpec with Matchers {
   }
 
   it should "use InMemoryStore" in {
-    val connection = DriverManager.getConnection("ojai:anicolaspp:mem")
 
-    connection.getStore("anicolaspp/mem").isInstanceOf[InMemoryStore] should be (true)
+    connection.getStore("anicolaspp/mem").isInstanceOf[InMemoryStore] should be(true)
 
   }
 
+  it should "mutation set" in {
+    val store = documentStore("anicolaspp/update")
+
+    val mutation = connection.newMutation().set("name", "nico")
+
+    store.update("1", mutation)
+
+    val doc = store.findById("1")
+
+    doc.getIdString should be ("1")
+    doc.getString("name") should be ("nico")
+  }
 }
 
 

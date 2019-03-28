@@ -8,8 +8,10 @@ import org.ojai.DocumentStream;
 import org.ojai.FieldPath;
 import org.ojai.Value;
 import org.ojai.exceptions.OjaiException;
+import org.ojai.store.Connection;
 import org.ojai.store.DocumentMutation;
 import org.ojai.store.DocumentStore;
+import org.ojai.store.MutationOp;
 import org.ojai.store.Query;
 import org.ojai.store.QueryCondition;
 import org.ojai.store.QueryResult;
@@ -23,13 +25,15 @@ import java.util.Iterator;
 
 public class InMemoryStore implements DocumentStore {
     
+    private Connection connection;
     
     private ArrayList<Document> documents = new ArrayList<>();
     private String storeName;
     
-    public InMemoryStore(String storeName) {
+    public InMemoryStore(String storeName, Connection connection) {
         
         this.storeName = storeName;
+        this.connection = connection;
     }
     
     @Override
@@ -251,14 +255,121 @@ public class InMemoryStore implements DocumentStore {
         replace(stream, fieldAsKey);
     }
     
+    
+    private void getFromValue(String field, Value value, Document doc) {
+        switch (value.getType()) {
+            
+            case BOOLEAN:
+                value.getBoolean();
+                break;
+            case STRING:
+                doc.set(field, value.getString());
+                break;
+            case BYTE:
+                doc.set(field, value.getByte());
+                break;
+            case SHORT:
+                doc.set(field, value.getShort());
+                break;
+            case INT:
+                doc.set(field, value.getInt());
+                break;
+            case LONG:
+                doc.set(field, value.getLong());
+                break;
+            case FLOAT:
+                doc.set(field, value.getFloat());
+                break;
+            case DOUBLE:
+                doc.set(field, value.getDouble());
+                break;
+            case DECIMAL:
+                doc.set(field, value.getDecimal());
+                break;
+            case DATE:
+                doc.set(field, value.getDate());
+                break;
+            case TIME:
+                doc.set(field, value.getTime());
+                break;
+            case TIMESTAMP:
+                doc.set(field, value.getTimestamp());
+                break;
+            case INTERVAL:
+                doc.set(field, value.getInterval());
+                break;
+            case BINARY:
+                doc.set(field, value.getBinary());
+                break;
+            case MAP:
+                doc.set(field, value.getMap());
+                break;
+            case ARRAY:
+                doc.set(field, value.getList());
+                break;
+            case NULL:
+                doc.delete(field);
+                break;
+        }
+        
+        
+    }
+    
     @Override
     public void update(String _id, DocumentMutation mutation) throws StoreException {
+        Document doc = findById(_id);
+        
+        if (doc == null) {
+            doc = connection.newDocument().set("_id", _id);
+        }
+        
+        delete(_id);
+        
+        InMemoryMutation mut = (InMemoryMutation) mutation;
+        
+        Iterator<MutationOp> it = mut.iterator();
+        
+        while (it.hasNext()) {
+            MutationOp mutationOp = it.next();
     
+            MutationOp.Type t = mutationOp.getType();
+    
+            Value.Type valueType = mutationOp.getOpValue().getType();
+            getFromValue(mutationOp.getFieldPath().asPathString(), mutationOp.getOpValue(), doc);
+        }
+//
+//        mut.iterator()
+//                .forEachRemaining(mutationOp -> {
+//
+////
+////                                switch (t) {
+////
+////                                    case SET:
+////                                        getFromValue(mutationOp.getFieldPath().asPathString(), mutationOp.getOpValue(), entry);
+////                                        break;
+////                                    case SET_OR_REPLACE:
+////                                        break;
+////                                    case DELETE:
+////                                        break;
+////                                    case INCREMENT:
+////                                        break;
+////                                    case APPEND:
+////                                        break;
+////                                    case MERGE:
+////                                        break;
+////                                }
+//
+////                        entry.set(mutationOp.getFieldPath().asPathString(), mutationOp.getOpValue().getType())
+//                        }
+//                );
+        
+        
+        insert(_id, doc);
     }
     
     @Override
     public void update(Value _id, DocumentMutation mutation) throws StoreException {
-        
+        update(_id.getString(), mutation);
     }
     
     private int index(String _id) {
@@ -593,3 +704,4 @@ public class InMemoryStore implements DocumentStore {
         }
     }
 }
+
