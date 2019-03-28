@@ -35,10 +35,10 @@ public class InMemoryMutation extends MutationImpl {
     
     private void nullOp(String path) {
         MutationOp op = new MutationOp();
-    
+        
         op.setFieldPath(FieldPath.parseFrom(path));
         op.setOpValue(null);
-    
+        
         ops.add(op);
     }
     
@@ -298,142 +298,146 @@ public class InMemoryMutation extends MutationImpl {
     
     @Override
     public DocumentMutation setOrReplace(String path, Value v) {
-        return super.setOrReplace(path, v);
+        return set(path, v);
     }
     
     @Override
     public DocumentMutation setOrReplace(FieldPath path, Value v) {
-        return super.setOrReplace(path, v);
+        return set(path, v);
     }
     
     @Override
     public DocumentMutation setOrReplaceNull(String path) {
-        return super.setOrReplaceNull(path);
+        return setNull(path);
     }
     
     @Override
     public DocumentMutation setOrReplaceNull(FieldPath path) {
-        return super.setOrReplaceNull(path);
+        return setNull(path.asPathString());
     }
     
     @Override
     public DocumentMutation setOrReplace(String path, boolean b) {
-        return super.setOrReplace(path, b);
+        return set(path, b);
     }
     
     @Override
     public DocumentMutation setOrReplace(FieldPath path, boolean b) {
-        return super.setOrReplace(path, b);
+        return set(path, b);
     }
     
     @Override
     public DocumentMutation setOrReplace(String path, short s) {
-        return super.setOrReplace(path, s);
+        return set(path, s);
     }
     
     @Override
     public DocumentMutation setOrReplace(FieldPath path, short s) {
-        return super.setOrReplace(path, s);
+        return set(path, s);
     }
     
     @Override
     public DocumentMutation setOrReplace(String path, byte b) {
-        return super.setOrReplace(path, b);
+        return set(path, b);
     }
     
     @Override
     public DocumentMutation setOrReplace(FieldPath path, byte b) {
+        set(path, b);
+        
         return super.setOrReplace(path, b);
     }
     
     @Override
     public DocumentMutation setOrReplace(String path, int i) {
-        return super.setOrReplace(path, i);
+        return set(path, i);
     }
     
     @Override
     public DocumentMutation setOrReplace(FieldPath path, int i) {
-        return super.setOrReplace(path, i);
+        return set(path, i);
     }
     
     @Override
     public DocumentMutation setOrReplace(String path, long l) {
-        return super.setOrReplace(path, l);
+        return set(path, l);
     }
     
     @Override
     public DocumentMutation setOrReplace(FieldPath path, long l) {
-        return super.setOrReplace(path, l);
+        return set(path, l);
     }
     
     @Override
     public DocumentMutation setOrReplace(String path, float f) {
+        set(path, f);
+        
         return super.setOrReplace(path, f);
     }
     
     @Override
     public DocumentMutation setOrReplace(FieldPath path, float f) {
-        return super.setOrReplace(path, f);
+        return set(path, f);
     }
     
     @Override
     public DocumentMutation setOrReplace(String path, double d) {
-        return super.setOrReplace(path, d);
+        return set(path, d);
     }
     
     @Override
     public DocumentMutation setOrReplace(FieldPath path, double d) {
-        return super.setOrReplace(path, d);
+        return set(path, d);
     }
     
     @Override
     public MutationImpl setOrReplace(String path, String value) {
-        return super.setOrReplace(path, value);
+        return set(path, value);
     }
     
     @Override
     public MutationImpl setOrReplace(FieldPath path, String value) {
-        return super.setOrReplace(path, value);
+        return set(path, value);
     }
     
     @Override
     public DocumentMutation setOrReplace(String path, BigDecimal bd) {
-        return super.setOrReplace(path, bd);
+        return set(path, bd);
     }
     
     @Override
     public DocumentMutation setOrReplace(FieldPath path, BigDecimal bd) {
-        return super.setOrReplace(path, bd);
+        return set(path, bd);
     }
     
     @Override
     public DocumentMutation setOrReplace(String path, OTime t) {
-        return super.setOrReplace(path, t);
+        return set(path, t);
     }
     
     @Override
     public DocumentMutation setOrReplace(FieldPath path, OTime t) {
-        return super.setOrReplace(path, t);
+        return set(path, t);
     }
     
     @Override
     public DocumentMutation setOrReplace(String path, OTimestamp t) {
-        return super.setOrReplace(path, t);
+        return set(path, t);
     }
     
     @Override
     public DocumentMutation setOrReplace(FieldPath path, OTimestamp t) {
-        return super.setOrReplace(path, t);
+        return set(path, t);
     }
     
     @Override
     public DocumentMutation setOrReplace(String path, ODate d) {
-        return super.setOrReplace(path, d);
+        return set(path, d);
     }
     
     @Override
     public DocumentMutation setOrReplace(FieldPath path, ODate d) {
-        return super.setOrReplace(path, d);
+        return set(path, d);
     }
     
     @Override
@@ -448,22 +452,22 @@ public class InMemoryMutation extends MutationImpl {
     
     @Override
     public DocumentMutation setOrReplace(String path, OInterval intv) {
-        return super.setOrReplace(path, intv);
+        return set(path, intv);
     }
     
     @Override
     public DocumentMutation setOrReplace(FieldPath path, OInterval intv) {
-        return super.setOrReplace(path, intv);
+        return set(path, intv);
     }
     
     @Override
     public DocumentMutation setOrReplace(String path, ByteBuffer bb) {
-        return super.setOrReplace(path, bb);
+        return set(path, bb);
     }
     
     @Override
     public DocumentMutation setOrReplace(FieldPath path, ByteBuffer bb) {
-        return super.setOrReplace(path, bb);
+        return set(path, bb);
     }
     
     @Override

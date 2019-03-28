@@ -28,7 +28,7 @@ class ConnectionTest extends FlatSpec with OjaiTesting with Matchers {
 
   }
 
-  it should "mutation set" in {
+  it should "mutation set not doc" in {
     val store = documentStore("anicolaspp/update")
 
     val mutation = connection.newMutation().set("name", "nico")
@@ -39,6 +39,38 @@ class ConnectionTest extends FlatSpec with OjaiTesting with Matchers {
 
     doc.getIdString should be ("1")
     doc.getString("name") should be ("nico")
+  }
+
+  it should "mutation set existing doc" in {
+    val store = documentStore("anicolaspp/update")
+
+    store.insert(connection.newDocument().set("_id", "1").set("name", "pepe").set("age", 20))
+
+    val mutation = connection.newMutation().set("name", "nico")
+
+    store.update("1", mutation)
+
+    val doc = store.findById("1")
+
+    doc.getIdString should be ("1")
+    doc.getString("name") should be ("nico")
+    doc.getInt("age") should be (20)
+  }
+
+
+  it should "mutation set or replace" in {
+
+    val store = documentStore("anicolaspp/update")
+
+    val mutation = connection.newMutation().setOrReplace("name", "nico")
+
+    store.update("1", mutation)
+
+    val doc = store.findById("1")
+
+    doc.getIdString should be ("1")
+    doc.getString("name") should be ("nico")
+
   }
 }
 
