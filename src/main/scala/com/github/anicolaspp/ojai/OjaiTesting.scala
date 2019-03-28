@@ -11,5 +11,5 @@ trait OjaiTesting {
     DriverManager.getConnection("ojai:anicolaspp:mem")
   }
 
-  def storeHandler(storeName: String): DocumentStore = connection.getStore(storeName)
+  def documentStore(storeName: String): DocumentStore = connection.getStore(storeName)
 }

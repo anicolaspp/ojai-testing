@@ -5,7 +5,7 @@ import org.ojai.store._
 
 import scala.collection.JavaConverters._
 
-object App {
+object App extends OjaiTesting {
   def main(args: Array[String]): Unit = {
 
     DriverManager.registerDriver(InMemoryDriver)

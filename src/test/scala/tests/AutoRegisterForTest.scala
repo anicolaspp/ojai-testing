@@ -10,7 +10,7 @@ class AutoRegisterForTest extends FlatSpec with OjaiTesting with Matchers {
 
     connection.isInstanceOf[InMemoryConnection] should be (true)
 
-    connection.getStore("anicolaspp/mem") should be (storeHandler("anicolaspp/mem"))
+    connection.getStore("anicolaspp/mem") should be (documentStore("anicolaspp/mem"))
   }
 
 }
