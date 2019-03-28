@@ -1,7 +1,8 @@
-package com.mapr.ojai.store.impl;
+package com.github.anicolaspp.ojai;
 
 import com.mapr.db.rowcol.MutationImpl;
 import com.mapr.db.rowcol.SerializedFamilyInfo;
+import com.mapr.ojai.store.impl.Values;
 import org.ojai.Document;
 import org.ojai.FieldPath;
 import org.ojai.Value;
@@ -19,7 +20,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-class InMemoryMutation extends MutationImpl {
+public class InMemoryMutation extends MutationImpl {
     
     private List<MutationOp> ops = new ArrayList<>();
     

@@ -2,6 +2,7 @@ package com.mapr.ojai.store.impl
 
 import java.util
 
+import com.github.anicolaspp.ojai.{InMemoryConnection, InMemoryMutation}
 import com.mapr.db.impl.MapRDBImpl
 import org.ojai.json.impl.JsonValueBuilder
 import org.ojai.store._

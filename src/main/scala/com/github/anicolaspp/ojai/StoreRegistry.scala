@@ -1,4 +1,4 @@
-package com.mapr.ojai.store.impl
+package com.github.anicolaspp.ojai
 
 import org.ojai.store.DocumentStore
 

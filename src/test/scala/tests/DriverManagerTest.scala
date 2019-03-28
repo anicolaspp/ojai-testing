@@ -1,6 +1,7 @@
 package tests
 
-import com.mapr.ojai.store.impl.{InMemoryConnection, InMemoryDriver}
+import com.github.anicolaspp.ojai.InMemoryConnection
+import com.mapr.ojai.store.impl.InMemoryDriver
 import org.ojai.store.DriverManager
 import org.scalatest.{FlatSpec, Matchers}
 

@@ -1,7 +1,6 @@
 package tests
 
-import com.github.anicolaspp.ojai.OjaiTesting
-import com.mapr.ojai.store.impl.InMemoryConnection
+import com.github.anicolaspp.ojai.{InMemoryConnection, OjaiTesting}
 import org.scalatest.{FlatSpec, Matchers}
 
 class AutoRegisterForTest extends FlatSpec with OjaiTesting with Matchers {
