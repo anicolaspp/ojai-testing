@@ -1,6 +1,8 @@
-package com.github.anicolaspp.ojai;
+package com.mapr.db.impl;
 
-import com.mapr.db.impl.MapRDBImpl;
+import com.github.anicolaspp.ojai.InMemoryMutation;
+import com.mapr.db.rowcol.KeyValue;
+import com.mapr.ojai.store.impl.OjaiQuery;
 import org.ojai.Document;
 import org.ojai.DocumentListener;
 import org.ojai.DocumentReader;
@@ -22,6 +24,9 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class InMemoryStore implements DocumentStore {
     
@@ -150,30 +155,60 @@ public class InMemoryStore implements DocumentStore {
         return null;
     }
     
+   
+    
     @Override
     public QueryResult find(Query query) throws StoreException {
-        throw new UnsupportedOperationException("find with query is not supported just yet");
+//        throw new UnsupportedOperationException("find with query is not supported just yet");
         
-//        OjaiQuery ojaiQuery = (OjaiQuery) query;
-//
-//        ConditionImpl condition = ojaiQuery.getCondition();
-//        long limit = ojaiQuery.getLimit();
-//        Set<FieldPath> projectedFieldSet = ojaiQuery.getProjectedFieldSet();
-//
-//
-//        List<Document> collect = documents.stream()
-//                .limit(limit)
-//                .filter(doc -> {
-//                    Dbfilters.FilterMsg filterMsg = condition.getDescriptor().getFilterMsg();
-//
-//                    System.out.println(filterMsg);
-//
-//                    return true;
-//                }).collect(Collectors.toList());
-//
-//        System.out.println(collect.size());
-//
-//        return null;
+        OjaiQuery ojaiQuery = (OjaiQuery) query;
+        
+        ConditionImpl condition = ojaiQuery.getCondition();
+        long limit = ojaiQuery.getLimit();
+        Set<FieldPath> projectedFieldSet = ojaiQuery.getCondition().getProjections();
+        
+        
+        List<Document> collect = documents.stream()
+                .limit(limit)
+                .filter(doc -> {
+                    if (condition.getRoot().isLeaf()) {
+                        ConditionLeaf leaf = (ConditionLeaf) condition.getRoot();
+                        
+                        return cmp(leaf.getValue(), doc.getValue(leaf.getField()));
+                    } else {
+                        ConditionNode node = condition.getRoot();
+                        
+                    }
+                    
+                    return false;
+                }).collect(Collectors.toList());
+        
+        return new QueryResult() {
+            @Override
+            public Document getQueryPlan() {
+                return null;
+            }
+    
+            @Override
+            public void streamTo(DocumentListener listener) {
+        
+            }
+    
+            @Override
+            public Iterator<Document> iterator() {
+                return collect.iterator();
+            }
+    
+            @Override
+            public Iterable<DocumentReader> documentReaders() {
+                return null;
+            }
+    
+            @Override
+            public void close() throws OjaiException {
+        
+            }
+        };
     }
     
     @Override
@@ -754,6 +789,48 @@ public class InMemoryStore implements DocumentStore {
         }
         
         return -1;
+    }
+    
+    private boolean cmp(KeyValue keyValue, Value value) {
+        switch (value.getType()) {
+            
+            case NULL:
+                return keyValue.getType().getCode() == Value.TYPE_CODE_NULL;
+            case BOOLEAN:
+                return keyValue.getBoolean() == value.getBoolean();
+            case STRING:
+                return keyValue.getString().equals(value.getString());
+            case BYTE:
+                return keyValue.getByte() == value.getByte();
+            case SHORT:
+                return keyValue.getShort() == value.getShort();
+            case INT:
+                return keyValue.getInt() == value.getInt();
+            case LONG:
+                return keyValue.getLong() == value.getLong();
+            case FLOAT:
+                return keyValue.getFloat() == value.getFloat();
+            case DOUBLE:
+                return keyValue.getDouble() == value.getDouble();
+            case DECIMAL:
+                return keyValue.getDecimal().equals(value.getDecimal());
+            case DATE:
+                return keyValue.getDate() == value.getDate();
+            case TIME:
+                return keyValue.getTime() == value.getTime();
+            case TIMESTAMP:
+                return keyValue.getTimestamp() == value.getTimestamp();
+            case INTERVAL:
+                return keyValue.getInterval() == value.getInterval();
+            case BINARY:
+                return keyValue.getBinary() == value.getBinary();
+            case MAP:
+                return keyValue.getMap() == value.getMap();
+            case ARRAY:
+                return keyValue.getList() == value.getList();
+        }
+        
+        return false;
     }
 }
 

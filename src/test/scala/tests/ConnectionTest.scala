@@ -1,6 +1,7 @@
 package tests
 
-import com.github.anicolaspp.ojai.{InMemoryStore, OjaiTesting}
+import com.github.anicolaspp.ojai.OjaiTesting
+import com.mapr.db.impl.InMemoryStore
 import org.ojai.FieldPath
 import org.ojai.store.QueryCondition
 import org.scalatest.{BeforeAndAfterEach, FlatSpec, Matchers}
@@ -128,6 +129,8 @@ class ConnectionTest extends FlatSpec with OjaiTesting with Matchers with Before
     store.findById("1").getInt("count") should be (4)
   }
 
+  import scala.collection.JavaConverters._
+
   it should "find with query" in {
     val store = documentStore("anicolaspp/mem")
 
@@ -147,6 +150,7 @@ class ConnectionTest extends FlatSpec with OjaiTesting with Matchers with Before
 
     val result = store.find(query)
 
+    result.asScala.toList.length should be (1)
   }
 }
 

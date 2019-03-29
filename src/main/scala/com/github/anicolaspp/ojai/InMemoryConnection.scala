@@ -2,6 +2,7 @@ package com.github.anicolaspp.ojai
 
 import java.util
 
+import com.mapr.db.impl.InMemoryStore
 import org.ojai.store._
 import org.ojai.{Document, DocumentBuilder}
 
