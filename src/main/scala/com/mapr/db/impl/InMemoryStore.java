@@ -172,9 +172,9 @@ public class InMemoryStore implements DocumentStore {
                 .toArray(String[]::new);
         
         Stream<Document> resultStream = documents.stream()
-                .limit(limit)
                 .filter(doc -> evalCondition(condition.getRoot(), doc))
-                .map(doc -> project(doc, projectedFieldSet));
+                .map(doc -> project(doc, projectedFieldSet))
+                .limit(limit);
         
         return new QueryResult() {
             @Override
