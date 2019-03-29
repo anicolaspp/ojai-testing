@@ -317,54 +317,57 @@ public class InMemoryStore implements DocumentStore {
     
     @Override
     public void update(String _id, DocumentMutation mutation) throws StoreException {
-        Document doc = findById(_id);
-        
-        if (doc == null) {
-            doc = connection.newDocument().set("_id", _id);
-        }
-        
-        delete(_id);
-        
         InMemoryMutation mut = (InMemoryMutation) mutation;
         
-        Iterator<MutationOp> it = mut.iterator();
-        
-        while (it.hasNext()) {
-            MutationOp mutationOp = it.next();
+        for (MutationOp mutationOp : mut) {
+            Document doc = findById(_id);
+            
+            if (doc == null) {
+                doc = connection.newDocument().set("_id", _id);
+            }
+            
+            delete(_id);
+            
+            if (mutationOp.getType() == MutationOp.Type.INCREMENT) {
+                
+                insert(_id, doc);
+                
+                if (mutationOp.getOpValue().getType() == Value.Type.INT) {
+                    int inc = mutationOp.getOpValue().getInt();
+                    
+                    increment(_id, mutationOp.getFieldPath().asPathString(), inc);
+                } else if (mutationOp.getOpValue().getType() == Value.Type.BYTE) {
+                    byte inc = mutationOp.getOpValue().getByte();
+                    
+                    increment(_id, mutationOp.getFieldPath().asPathString(), inc);
+                } else if (mutationOp.getOpValue().getType() == Value.Type.LONG) {
+                    long inc = mutationOp.getOpValue().getLong();
+                    
+                    increment(_id, mutationOp.getFieldPath().asPathString(), inc);
+                } else if (mutationOp.getOpValue().getType() == Value.Type.SHORT) {
+                    short inc = mutationOp.getOpValue().getShort();
+                    
+                    increment(_id, mutationOp.getFieldPath().asPathString(), inc);
+                } else if (mutationOp.getOpValue().getType() == Value.Type.FLOAT) {
+                    float inc = mutationOp.getOpValue().getFloat();
+                    
+                    increment(_id, mutationOp.getFieldPath().asPathString(), inc);
+                } else if (mutationOp.getOpValue().getType() == Value.Type.DOUBLE) {
+                    double inc = mutationOp.getOpValue().getDouble();
+                    
+                    increment(_id, mutationOp.getFieldPath().asPathString(), inc);
+                }           else if (mutationOp.getOpValue().getType() == Value.Type.DECIMAL) {
+                    byte inc = mutationOp.getOpValue().getByte();
     
-            MutationOp.Type t = mutationOp.getType();
-    
-            Value.Type valueType = mutationOp.getOpValue().getType();
-            getFromValue(mutationOp.getFieldPath().asPathString(), mutationOp.getOpValue(), doc);
+                    increment(_id, mutationOp.getFieldPath().asPathString(), inc);
+                }
+                
+            } else {
+                getFromValue(mutationOp.getFieldPath().asPathString(), mutationOp.getOpValue(), doc);
+                
+                insert(_id, doc);
+            }
         }
-//
-//        mut.iterator()
-//                .forEachRemaining(mutationOp -> {
-//
-////
-////                                switch (t) {
-////
-////                                    case SET:
-////                                        getFromValue(mutationOp.getFieldPath().asPathString(), mutationOp.getOpValue(), entry);
-////                                        break;
-////                                    case SET_OR_REPLACE:
-////                                        break;
-////                                    case DELETE:
-////                                        break;
-////                                    case INCREMENT:
-////                                        break;
-////                                    case APPEND:
-////                                        break;
-////                                    case MERGE:
-////                                        break;
-////                                }
-//
-////                        entry.set(mutationOp.getFieldPath().asPathString(), mutationOp.getOpValue().getType())
-//                        }
-//                );
-        
-        
-        insert(_id, doc);
     }
     
     @Override
@@ -554,7 +557,9 @@ public class InMemoryStore implements DocumentStore {
         
         if (doc != null) {
             
-            if (doc.getValue(field).getType() == Value.Type.INT) {
+            if (doc.getValue(field) == null) {
+                doc.set(field, inc);
+            } else if (doc.getValue(field).getType() == Value.Type.INT) {
                 int value = doc.getInt(field);
                 
                 value += inc;
@@ -689,7 +694,7 @@ public class InMemoryStore implements DocumentStore {
     
     @Override
     public void close() throws StoreException {
-    
+        documents.clear();
     }
     
     private void checkId(Value _id) {

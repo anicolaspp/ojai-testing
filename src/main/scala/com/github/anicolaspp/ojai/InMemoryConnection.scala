@@ -28,7 +28,9 @@ class InMemoryConnection(driver: Driver) extends Connection {
 
   override def getDriver: Driver = driver
 
-  override def close(): Unit = {}
+  override def close(): Unit = {
+    storeRegistry.clean()
+  }
 
   override def getStore(storeName: String): DocumentStore = {
     if (!storeName.startsWith("anicolaspp")){

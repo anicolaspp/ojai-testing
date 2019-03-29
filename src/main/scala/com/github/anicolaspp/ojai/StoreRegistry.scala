@@ -9,6 +9,8 @@ trait StoreRegistry {
   def getStore(storeName: String): Option[DocumentStore]
 
   def removeStore(storeName: String): Boolean
+
+  def clean(): Unit
 }
 
 object StoreRegistry {
@@ -26,6 +28,8 @@ object StoreRegistry {
     override def getStore(storeName: String): Option[DocumentStore] = stores.get(storeName)
 
     override def removeStore(storeName: String): Boolean = stores.remove(storeName).isDefined
+
+    override def clean(): Unit = stores.clear()
   }
 
 }
