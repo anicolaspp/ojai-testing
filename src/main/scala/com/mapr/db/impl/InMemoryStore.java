@@ -24,6 +24,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.function.Consumer;
 import java.util.stream.Stream;
 
 public class InMemoryStore implements DocumentStore {
@@ -622,17 +623,21 @@ public class InMemoryStore implements DocumentStore {
         increment(_id.getString(), field, inc);
     }
     
-    @Override
-    public boolean checkAndMutate(String _id, QueryCondition condition, DocumentMutation mutation) throws StoreException {
+    private boolean checkAndApply(String _id, QueryCondition condition, Consumer<Document> fn) {
         Document document = findById(_id, condition);
-        
+    
         if (document != null) {
-            update(_id, mutation);
-            
+           fn.accept(document);
+        
             return true;
         } else {
             return false;
         }
+    }
+    
+    @Override
+    public boolean checkAndMutate(String _id, QueryCondition condition, DocumentMutation mutation) throws StoreException {
+        return checkAndApply(_id, condition, doc -> update(_id, mutation));
     }
     
     @Override
@@ -642,15 +647,8 @@ public class InMemoryStore implements DocumentStore {
     
     @Override
     public boolean checkAndDelete(String _id, QueryCondition condition) throws StoreException {
-        Document document = findById(_id, condition);
-        
-        if (document != null) {
-            delete(_id);
-            
-            return true;
-        } else {
-            return false;
-        }
+        return checkAndApply(_id, condition, doc -> delete(_id));
+       
     }
     
     @Override
@@ -660,15 +658,7 @@ public class InMemoryStore implements DocumentStore {
     
     @Override
     public boolean checkAndReplace(String _id, QueryCondition condition, Document doc) throws StoreException {
-        Document document = findById(_id, condition);
-        
-        if (document != null) {
-            replace(_id, doc);
-            
-            return true;
-        } else {
-            return false;
-        }
+        return checkAndApply(_id, condition, d -> replace(_id, d));
     }
     
     @Override
