@@ -152,7 +152,10 @@ public class InMemoryStore implements DocumentStore {
     
     @Override
     public QueryResult find(Query query) throws StoreException {
-        throw new UnsupportedOperationException();
+        
+        
+        
+        return null;
     }
     
     @Override
@@ -256,64 +259,7 @@ public class InMemoryStore implements DocumentStore {
     }
     
     
-    private void getFromValue(String field, Value value, Document doc) {
-        switch (value.getType()) {
-            
-            case BOOLEAN:
-                value.getBoolean();
-                break;
-            case STRING:
-                doc.set(field, value.getString());
-                break;
-            case BYTE:
-                doc.set(field, value.getByte());
-                break;
-            case SHORT:
-                doc.set(field, value.getShort());
-                break;
-            case INT:
-                doc.set(field, value.getInt());
-                break;
-            case LONG:
-                doc.set(field, value.getLong());
-                break;
-            case FLOAT:
-                doc.set(field, value.getFloat());
-                break;
-            case DOUBLE:
-                doc.set(field, value.getDouble());
-                break;
-            case DECIMAL:
-                doc.set(field, value.getDecimal());
-                break;
-            case DATE:
-                doc.set(field, value.getDate());
-                break;
-            case TIME:
-                doc.set(field, value.getTime());
-                break;
-            case TIMESTAMP:
-                doc.set(field, value.getTimestamp());
-                break;
-            case INTERVAL:
-                doc.set(field, value.getInterval());
-                break;
-            case BINARY:
-                doc.set(field, value.getBinary());
-                break;
-            case MAP:
-                doc.set(field, value.getMap());
-                break;
-            case ARRAY:
-                doc.set(field, value.getList());
-                break;
-            case NULL:
-                doc.delete(field);
-                break;
-        }
-        
-        
-    }
+  
     
     @Override
     public void update(String _id, DocumentMutation mutation) throws StoreException {
@@ -344,63 +290,9 @@ public class InMemoryStore implements DocumentStore {
         }
     }
     
-    private void mutationDelete(String _id, MutationOp mutationOp, Document doc) {
-        doc.delete(mutationOp.getFieldPath());
-        
-        insert(_id, doc);
-    }
-    
-    private void mutationIncrement(String _id, MutationOp mutationOp, Document doc) {
-        insert(_id, doc);
-        
-        if (mutationOp.getOpValue().getType() == Value.Type.INT) {
-            int inc = mutationOp.getOpValue().getInt();
-            
-            increment(_id, mutationOp.getFieldPath().asPathString(), inc);
-        } else if (mutationOp.getOpValue().getType() == Value.Type.BYTE) {
-            byte inc = mutationOp.getOpValue().getByte();
-            
-            increment(_id, mutationOp.getFieldPath().asPathString(), inc);
-        } else if (mutationOp.getOpValue().getType() == Value.Type.LONG) {
-            long inc = mutationOp.getOpValue().getLong();
-            
-            increment(_id, mutationOp.getFieldPath().asPathString(), inc);
-        } else if (mutationOp.getOpValue().getType() == Value.Type.SHORT) {
-            short inc = mutationOp.getOpValue().getShort();
-            
-            increment(_id, mutationOp.getFieldPath().asPathString(), inc);
-        } else if (mutationOp.getOpValue().getType() == Value.Type.FLOAT) {
-            float inc = mutationOp.getOpValue().getFloat();
-            
-            increment(_id, mutationOp.getFieldPath().asPathString(), inc);
-        } else if (mutationOp.getOpValue().getType() == Value.Type.DOUBLE) {
-            double inc = mutationOp.getOpValue().getDouble();
-            
-            increment(_id, mutationOp.getFieldPath().asPathString(), inc);
-        } else if (mutationOp.getOpValue().getType() == Value.Type.DECIMAL) {
-            byte inc = mutationOp.getOpValue().getByte();
-            
-            increment(_id, mutationOp.getFieldPath().asPathString(), inc);
-        }
-    }
-    
     @Override
     public void update(Value _id, DocumentMutation mutation) throws StoreException {
         update(_id.getString(), mutation);
-    }
-    
-    private int index(String _id) {
-        int idx = -1;
-        
-        for (Document doc : documents) {
-            idx++;
-            
-            if (doc.getIdString().equals(_id)) {
-                return idx;
-            }
-        }
-        
-        return -1;
     }
     
     @Override
@@ -733,6 +625,119 @@ public class InMemoryStore implements DocumentStore {
         if (_id == null || _id.isEmpty()) {
             throw new IllegalArgumentException("Missing _id");
         }
+    }
+    
+    private void getFromValue(String field, Value value, Document doc) {
+        switch (value.getType()) {
+            
+            case BOOLEAN:
+                value.getBoolean();
+                break;
+            case STRING:
+                doc.set(field, value.getString());
+                break;
+            case BYTE:
+                doc.set(field, value.getByte());
+                break;
+            case SHORT:
+                doc.set(field, value.getShort());
+                break;
+            case INT:
+                doc.set(field, value.getInt());
+                break;
+            case LONG:
+                doc.set(field, value.getLong());
+                break;
+            case FLOAT:
+                doc.set(field, value.getFloat());
+                break;
+            case DOUBLE:
+                doc.set(field, value.getDouble());
+                break;
+            case DECIMAL:
+                doc.set(field, value.getDecimal());
+                break;
+            case DATE:
+                doc.set(field, value.getDate());
+                break;
+            case TIME:
+                doc.set(field, value.getTime());
+                break;
+            case TIMESTAMP:
+                doc.set(field, value.getTimestamp());
+                break;
+            case INTERVAL:
+                doc.set(field, value.getInterval());
+                break;
+            case BINARY:
+                doc.set(field, value.getBinary());
+                break;
+            case MAP:
+                doc.set(field, value.getMap());
+                break;
+            case ARRAY:
+                doc.set(field, value.getList());
+                break;
+            case NULL:
+                doc.delete(field);
+                break;
+        }
+        
+        
+    }
+    
+    private void mutationDelete(String _id, MutationOp mutationOp, Document doc) {
+        doc.delete(mutationOp.getFieldPath());
+        
+        insert(_id, doc);
+    }
+    
+    private void mutationIncrement(String _id, MutationOp mutationOp, Document doc) {
+        insert(_id, doc);
+        
+        if (mutationOp.getOpValue().getType() == Value.Type.INT) {
+            int inc = mutationOp.getOpValue().getInt();
+            
+            increment(_id, mutationOp.getFieldPath().asPathString(), inc);
+        } else if (mutationOp.getOpValue().getType() == Value.Type.BYTE) {
+            byte inc = mutationOp.getOpValue().getByte();
+            
+            increment(_id, mutationOp.getFieldPath().asPathString(), inc);
+        } else if (mutationOp.getOpValue().getType() == Value.Type.LONG) {
+            long inc = mutationOp.getOpValue().getLong();
+            
+            increment(_id, mutationOp.getFieldPath().asPathString(), inc);
+        } else if (mutationOp.getOpValue().getType() == Value.Type.SHORT) {
+            short inc = mutationOp.getOpValue().getShort();
+            
+            increment(_id, mutationOp.getFieldPath().asPathString(), inc);
+        } else if (mutationOp.getOpValue().getType() == Value.Type.FLOAT) {
+            float inc = mutationOp.getOpValue().getFloat();
+            
+            increment(_id, mutationOp.getFieldPath().asPathString(), inc);
+        } else if (mutationOp.getOpValue().getType() == Value.Type.DOUBLE) {
+            double inc = mutationOp.getOpValue().getDouble();
+            
+            increment(_id, mutationOp.getFieldPath().asPathString(), inc);
+        } else if (mutationOp.getOpValue().getType() == Value.Type.DECIMAL) {
+            byte inc = mutationOp.getOpValue().getByte();
+            
+            increment(_id, mutationOp.getFieldPath().asPathString(), inc);
+        }
+    }
+    
+    private int index(String _id) {
+        int idx = -1;
+        
+        for (Document doc : documents) {
+            idx++;
+            
+            if (doc.getIdString().equals(_id)) {
+                return idx;
+            }
+        }
+        
+        return -1;
     }
 }
 
