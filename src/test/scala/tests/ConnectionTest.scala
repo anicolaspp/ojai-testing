@@ -8,7 +8,10 @@ import org.scalatest.{BeforeAndAfterEach, FlatSpec, Matchers}
 
 import scala.util.{Failure, Try}
 
-class ConnectionTest extends FlatSpec with OjaiTesting with Matchers with BeforeAndAfterEach {
+class ConnectionTest extends FlatSpec
+  with OjaiTesting
+  with Matchers
+  with BeforeAndAfterEach {
 
   override def beforeEach(): Unit = connection.close()
 
