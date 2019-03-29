@@ -9,6 +9,8 @@ import org.ojai.store._
 import org.ojai.{Document, DocumentBuilder}
 
 object InMemoryDriver extends Driver {
+
+  def apply() = this
   
   override def getName = "InMemDriver"
 

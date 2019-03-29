@@ -34,7 +34,7 @@ class InMemoryConnection(driver: Driver) extends Connection {
   }
 
   override def getStore(storeName: String): DocumentStore = {
-    if (!storeName.startsWith("anicolaspp")){
+    if (!storeName.startsWith("anicolaspp")) {
       throw new IllegalArgumentException("storeName should start with 'anicolaspp'")
     }
 

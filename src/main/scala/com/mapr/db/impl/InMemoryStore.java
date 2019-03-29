@@ -796,7 +796,7 @@ public class InMemoryStore implements DocumentStore {
     }
     
     private Document project(Document document, String... fieldPaths) {
-        Document result = MapRDBImpl.newDocument();
+        Document result = connection.newDocument();
         
         Arrays.stream(fieldPaths)
                 .forEach(field -> result.set(field, document.getValue(field)));
