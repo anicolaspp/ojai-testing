@@ -24,11 +24,20 @@ public class InMemoryMutation extends MutationImpl {
     
     private List<MutationOp> ops = new ArrayList<>();
     
-    private void newOp(String path, Value value) {
+    private void newOp(String path, Value value, MutationOp.Type type) {
         MutationOp op = new MutationOp();
         
         op.setFieldPath(FieldPath.parseFrom(path));
         op.setOpValue(value);
+        op.setType(type);
+        
+        for (int i = 0; i < ops.size(); i++) {
+            if (ops.get(i).getFieldPath().asPathString().equals(op.getFieldPath().asPathString())) {
+                ops.set(i, op);
+                
+                return;
+            }
+        }
         
         ops.add(op);
     }
@@ -58,181 +67,181 @@ public class InMemoryMutation extends MutationImpl {
     
     @Override
     public DocumentMutation set(String path, Value v) {
-        newOp(path, v);
+        newOp(path, v, MutationOp.Type.SET);
         
         return super.set(path, v);
     }
     
     @Override
     public DocumentMutation set(FieldPath path, Value v) {
-        newOp(path.asPathString(), v);
+        newOp(path.asPathString(), v, MutationOp.Type.SET);
         
         return super.set(path, v);
     }
     
     @Override
     public DocumentMutation set(String path, boolean b) {
-        newOp(path, new Values.BooleanValue(b));
+        newOp(path, new Values.BooleanValue(b), MutationOp.Type.SET);
         
         return super.set(path, b);
     }
     
     @Override
     public DocumentMutation set(FieldPath path, boolean b) {
-        newOp(path.asPathString(), new Values.BooleanValue(b));
+        newOp(path.asPathString(), new Values.BooleanValue(b), MutationOp.Type.SET);
         return super.set(path, b);
     }
     
     @Override
     public DocumentMutation set(String path, short s) {
-        newOp(path, new Values.ShortValue(s));
+        newOp(path, new Values.ShortValue(s), MutationOp.Type.SET);
         
         return super.set(path, s);
     }
     
     @Override
     public DocumentMutation set(FieldPath path, short s) {
-        newOp(path.asPathString(), new Values.ShortValue(s));
+        newOp(path.asPathString(), new Values.ShortValue(s), MutationOp.Type.SET);
         
         return super.set(path, s);
     }
     
     @Override
     public DocumentMutation set(String path, byte b) {
-        newOp(path, new Values.ByteValue(b));
+        newOp(path, new Values.ByteValue(b), MutationOp.Type.SET);
         
         return super.set(path, b);
     }
     
     @Override
     public DocumentMutation set(FieldPath path, byte b) {
-        newOp(path.asPathString(), new Values.ByteValue(b));
+        newOp(path.asPathString(), new Values.ByteValue(b), MutationOp.Type.SET);
         
         return super.set(path, b);
     }
     
     @Override
     public DocumentMutation set(String path, int i) {
-        newOp(path, new Values.IntValue(i));
+        newOp(path, new Values.IntValue(i), MutationOp.Type.SET);
         
         return super.set(path, i);
     }
     
     @Override
     public DocumentMutation set(FieldPath path, int i) {
-        newOp(path.asPathString(), new Values.IntValue(i));
+        newOp(path.asPathString(), new Values.IntValue(i), MutationOp.Type.SET);
         
         return super.set(path, i);
     }
     
     @Override
     public DocumentMutation set(String path, long l) {
-        newOp(path, new Values.LongValue(l));
+        newOp(path, new Values.LongValue(l), MutationOp.Type.SET);
         
         return super.set(path, l);
     }
     
     @Override
     public DocumentMutation set(FieldPath path, long l) {
-        newOp(path.asPathString(), new Values.LongValue(l));
+        newOp(path.asPathString(), new Values.LongValue(l), MutationOp.Type.SET);
         
         return super.set(path, l);
     }
     
     @Override
     public DocumentMutation set(String path, float f) {
-        newOp(path, new Values.FloatValue(f));
+        newOp(path, new Values.FloatValue(f), MutationOp.Type.SET);
         
         return super.set(path, f);
     }
     
     @Override
     public DocumentMutation set(FieldPath path, float f) {
-        newOp(path.asPathString(), new Values.FloatValue(f));
+        newOp(path.asPathString(), new Values.FloatValue(f), MutationOp.Type.SET);
         
         return super.set(path, f);
     }
     
     @Override
     public DocumentMutation set(String path, double d) {
-        newOp(path, new Values.DoubleValue(d));
+        newOp(path, new Values.DoubleValue(d), MutationOp.Type.SET);
         
         return super.set(path, d);
     }
     
     @Override
     public DocumentMutation set(FieldPath path, double d) {
-        newOp(path.asPathString(), new Values.DoubleValue(d));
+        newOp(path.asPathString(), new Values.DoubleValue(d), MutationOp.Type.SET);
         
         return super.set(path, d);
     }
     
     @Override
     public MutationImpl set(String path, String value) {
-        newOp(path, new Values.StringValue(value));
+        newOp(path, new Values.StringValue(value), MutationOp.Type.SET);
         
         return super.set(path, value);
     }
     
     @Override
     public MutationImpl set(FieldPath path, String value) {
-        newOp(path.asPathString(), new Values.StringValue(value));
+        newOp(path.asPathString(), new Values.StringValue(value), MutationOp.Type.SET);
         
         return super.set(path, value);
     }
     
     @Override
     public DocumentMutation set(String path, BigDecimal bd) {
-        newOp(path, new Values.DoubleValue(bd.doubleValue()));
+        newOp(path, new Values.DoubleValue(bd.doubleValue()), MutationOp.Type.SET);
         
         return super.set(path, bd);
     }
     
     @Override
     public DocumentMutation set(FieldPath path, BigDecimal bd) {
-        newOp(path.asPathString(), new Values.DoubleValue(bd.doubleValue()));
+        newOp(path.asPathString(), new Values.DoubleValue(bd.doubleValue()), MutationOp.Type.SET);
         
         return super.set(path, bd);
     }
     
     @Override
     public DocumentMutation set(String path, OTime t) {
-        newOp(path, new Values.TimeValue(t));
+        newOp(path, new Values.TimeValue(t), MutationOp.Type.SET);
         
         return super.set(path, t);
     }
     
     @Override
     public DocumentMutation set(FieldPath path, OTime t) {
-        newOp(path.asPathString(), new Values.TimeValue(t));
+        newOp(path.asPathString(), new Values.TimeValue(t), MutationOp.Type.SET);
         
         return super.set(path, t);
     }
     
     @Override
     public DocumentMutation set(String path, OTimestamp t) {
-        newOp(path, new Values.TimestampValue(t));
+        newOp(path, new Values.TimestampValue(t), MutationOp.Type.SET);
         
         return super.set(path, t);
     }
     
     @Override
     public DocumentMutation set(FieldPath path, OTimestamp t) {
-        newOp(path.asPathString(), new Values.TimestampValue(t));
+        newOp(path.asPathString(), new Values.TimestampValue(t), MutationOp.Type.SET);
         
         return super.set(path, t);
     }
     
     @Override
     public DocumentMutation set(String path, ODate d) {
-        newOp(path, new Values.TimeValue(new OTime(d.toDate())));
+        newOp(path, new Values.TimeValue(new OTime(d.toDate())), MutationOp.Type.SET);
         
         return super.set(path, d);
     }
     
     @Override
     public DocumentMutation set(FieldPath path, ODate d) {
-        newOp(path.asPathString(), new Values.TimeValue(new OTime(d.toDate())));
+        newOp(path.asPathString(), new Values.TimeValue(new OTime(d.toDate())), MutationOp.Type.SET);
         
         return super.set(path, d);
     }
@@ -250,28 +259,28 @@ public class InMemoryMutation extends MutationImpl {
     
     @Override
     public DocumentMutation set(String path, OInterval intv) {
-        newOp(path, new Values.IntervalValue(intv));
+        newOp(path, new Values.IntervalValue(intv), MutationOp.Type.SET);
         
         return super.set(path, intv);
     }
     
     @Override
     public DocumentMutation set(FieldPath path, OInterval intv) {
-        newOp(path.asPathString(), new Values.IntervalValue(intv));
+        newOp(path.asPathString(), new Values.IntervalValue(intv), MutationOp.Type.SET);
         
         return super.set(path, intv);
     }
     
     @Override
     public DocumentMutation set(String path, ByteBuffer bb) {
-        newOp(path, new Values.BinaryValue(bb));
+        newOp(path, new Values.BinaryValue(bb), MutationOp.Type.SET);
         
         return super.set(path, bb);
     }
     
     @Override
     public DocumentMutation set(FieldPath path, ByteBuffer bb) {
-        newOp(path.asPathString(), new Values.BinaryValue(bb));
+        newOp(path.asPathString(), new Values.BinaryValue(bb), MutationOp.Type.SET);
         
         return super.set(path, bb);
     }
@@ -298,12 +307,16 @@ public class InMemoryMutation extends MutationImpl {
     
     @Override
     public DocumentMutation setOrReplace(String path, Value v) {
-        return set(path, v);
+        newOp(path, v, MutationOp.Type.SET_OR_REPLACE);
+        
+        return super.setOrReplace(path, v);
     }
     
     @Override
     public DocumentMutation setOrReplace(FieldPath path, Value v) {
-        return set(path, v);
+        newOp(path.asPathString(), v, MutationOp.Type.SET_OR_REPLACE);
+    
+        return super.setOrReplace(path, v);
     }
     
     @Override
@@ -318,126 +331,170 @@ public class InMemoryMutation extends MutationImpl {
     
     @Override
     public DocumentMutation setOrReplace(String path, boolean b) {
-        return set(path, b);
-    }
-    
-    @Override
-    public DocumentMutation setOrReplace(FieldPath path, boolean b) {
-        return set(path, b);
-    }
-    
-    @Override
-    public DocumentMutation setOrReplace(String path, short s) {
-        return set(path, s);
-    }
-    
-    @Override
-    public DocumentMutation setOrReplace(FieldPath path, short s) {
-        return set(path, s);
-    }
-    
-    @Override
-    public DocumentMutation setOrReplace(String path, byte b) {
-        return set(path, b);
-    }
-    
-    @Override
-    public DocumentMutation setOrReplace(FieldPath path, byte b) {
-        set(path, b);
+        newOp(path, new Values.BooleanValue(b), MutationOp.Type.SET_OR_REPLACE);
         
         return super.setOrReplace(path, b);
     }
     
     @Override
+    public DocumentMutation setOrReplace(FieldPath path, boolean b) {
+        newOp(path.asPathString(), new Values.BooleanValue(b), MutationOp.Type.SET_OR_REPLACE);
+    
+        return super.setOrReplace(path, b);
+    }
+    
+    @Override
+    public DocumentMutation setOrReplace(String path, short s) {
+        newOp(path, new Values.ShortValue(s), MutationOp.Type.SET_OR_REPLACE);
+    
+        return super.setOrReplace(path, s);
+    }
+    
+    @Override
+    public DocumentMutation setOrReplace(FieldPath path, short s) {
+        newOp(path.asPathString(), new Values.ShortValue(s), MutationOp.Type.SET_OR_REPLACE);
+    
+        return super.setOrReplace(path, s);
+    }
+    
+    @Override
+    public DocumentMutation setOrReplace(String path, byte b) {
+        newOp(path, new Values.ByteValue(b), MutationOp.Type.SET_OR_REPLACE);
+    
+        return super.setOrReplace(path, b);
+    }
+    
+    @Override
+    public DocumentMutation setOrReplace(FieldPath path, byte b) {
+        newOp(path.asPathString(), new Values.ByteValue(b), MutationOp.Type.SET_OR_REPLACE);
+    
+        return super.setOrReplace(path, b);
+    }
+    
+    @Override
     public DocumentMutation setOrReplace(String path, int i) {
-        return set(path, i);
+        newOp(path, new Values.IntValue(i), MutationOp.Type.SET_OR_REPLACE);
+    
+        return super.setOrReplace(path, i);
     }
     
     @Override
     public DocumentMutation setOrReplace(FieldPath path, int i) {
-        return set(path, i);
+        newOp(path.asPathString(), new Values.IntValue(i), MutationOp.Type.SET_OR_REPLACE);
+    
+        return super.setOrReplace(path, i);
     }
     
     @Override
     public DocumentMutation setOrReplace(String path, long l) {
-        return set(path, l);
+        newOp(path, new Values.LongValue(l), MutationOp.Type.SET_OR_REPLACE);
+    
+        return super.setOrReplace(path, l);
     }
     
     @Override
     public DocumentMutation setOrReplace(FieldPath path, long l) {
-        return set(path, l);
+        newOp(path.asPathString(), new Values.LongValue(l), MutationOp.Type.SET_OR_REPLACE);
+    
+        return super.setOrReplace(path, l);
     }
     
     @Override
     public DocumentMutation setOrReplace(String path, float f) {
-        set(path, f);
-        
+        newOp(path, new Values.FloatValue(f), MutationOp.Type.SET_OR_REPLACE);
+    
         return super.setOrReplace(path, f);
     }
     
     @Override
     public DocumentMutation setOrReplace(FieldPath path, float f) {
-        return set(path, f);
+        newOp(path.asPathString(), new Values.FloatValue(f), MutationOp.Type.SET_OR_REPLACE);
+    
+        return super.setOrReplace(path, f);
     }
     
     @Override
     public DocumentMutation setOrReplace(String path, double d) {
-        return set(path, d);
+        newOp(path, new Values.DoubleValue(d), MutationOp.Type.SET_OR_REPLACE);
+    
+        return super.setOrReplace(path, d);
     }
     
     @Override
     public DocumentMutation setOrReplace(FieldPath path, double d) {
-        return set(path, d);
+        newOp(path.asPathString(), new Values.DoubleValue(d), MutationOp.Type.SET_OR_REPLACE);
+    
+        return super.setOrReplace(path, d);
     }
     
     @Override
     public MutationImpl setOrReplace(String path, String value) {
-        return set(path, value);
+        newOp(path, new Values.StringValue(value), MutationOp.Type.SET_OR_REPLACE);
+    
+        return super.setOrReplace(path, value);
     }
     
     @Override
     public MutationImpl setOrReplace(FieldPath path, String value) {
-        return set(path, value);
+        newOp(path.asPathString(), new Values.StringValue(value), MutationOp.Type.SET_OR_REPLACE);
+    
+        return super.setOrReplace(path, value);
     }
     
     @Override
     public DocumentMutation setOrReplace(String path, BigDecimal bd) {
-        return set(path, bd);
+        newOp(path, new Values.DoubleValue(bd.doubleValue()), MutationOp.Type.SET_OR_REPLACE);
+    
+        return super.setOrReplace(path, bd);
     }
     
     @Override
     public DocumentMutation setOrReplace(FieldPath path, BigDecimal bd) {
-        return set(path, bd);
+        newOp(path.asPathString(), new Values.DoubleValue(bd.doubleValue()), MutationOp.Type.SET_OR_REPLACE);
+    
+        return super.setOrReplace(path, bd);
     }
     
     @Override
     public DocumentMutation setOrReplace(String path, OTime t) {
-        return set(path, t);
+        newOp(path, new Values.TimeValue(new OTime(t.toDate())), MutationOp.Type.SET_OR_REPLACE);
+    
+        return super.setOrReplace(path, t);
     }
     
     @Override
     public DocumentMutation setOrReplace(FieldPath path, OTime t) {
-        return set(path, t);
+        newOp(path.asPathString(), new Values.TimeValue(new OTime(t.toDate())), MutationOp.Type.SET_OR_REPLACE);
+    
+        return super.setOrReplace(path, t);
     }
     
     @Override
     public DocumentMutation setOrReplace(String path, OTimestamp t) {
-        return set(path, t);
+        newOp(path, new Values.TimestampValue(t), MutationOp.Type.SET_OR_REPLACE);
+    
+        return super.setOrReplace(path, t);
     }
     
     @Override
     public DocumentMutation setOrReplace(FieldPath path, OTimestamp t) {
-        return set(path, t);
+        newOp(path.asPathString(), new Values.TimestampValue(t), MutationOp.Type.SET_OR_REPLACE);
+    
+        return super.setOrReplace(path, t);
     }
     
     @Override
     public DocumentMutation setOrReplace(String path, ODate d) {
-        return set(path, d);
+        newOp(path, new Values.TimeValue(new OTime(d.toDate())), MutationOp.Type.SET_OR_REPLACE);
+    
+        return super.setOrReplace(path, d);
     }
     
     @Override
     public DocumentMutation setOrReplace(FieldPath path, ODate d) {
-        return set(path, d);
+        newOp(path.asPathString(), new Values.TimeValue(new OTime(d.toDate())), MutationOp.Type.SET_OR_REPLACE);
+    
+        return super.setOrReplace(path, d);
     }
     
     @Override
@@ -452,22 +509,30 @@ public class InMemoryMutation extends MutationImpl {
     
     @Override
     public DocumentMutation setOrReplace(String path, OInterval intv) {
-        return set(path, intv);
+        newOp(path, new Values.IntervalValue(intv), MutationOp.Type.SET_OR_REPLACE);
+    
+        return super.setOrReplace(path, intv);
     }
     
     @Override
     public DocumentMutation setOrReplace(FieldPath path, OInterval intv) {
-        return set(path, intv);
+        newOp(path.asPathString(), new Values.IntervalValue(intv), MutationOp.Type.SET_OR_REPLACE);
+    
+        return super.setOrReplace(path, intv);
     }
     
     @Override
     public DocumentMutation setOrReplace(String path, ByteBuffer bb) {
-        return set(path, bb);
+        newOp(path, new Values.BinaryValue(bb), MutationOp.Type.SET_OR_REPLACE);
+    
+        return super.setOrReplace(path, bb);
     }
     
     @Override
     public DocumentMutation setOrReplace(FieldPath path, ByteBuffer bb) {
-        return set(path, bb);
+        newOp(path.asPathString(), new Values.BinaryValue(bb), MutationOp.Type.SET_OR_REPLACE);
+    
+        return super.setOrReplace(path, bb);
     }
     
     @Override
@@ -567,6 +632,9 @@ public class InMemoryMutation extends MutationImpl {
     
     @Override
     public DocumentMutation increment(String path, byte inc) {
+        
+        newOp(path, new Values.ByteValue(inc), MutationOp.Type.INCREMENT);
+        
         return super.increment(path, inc);
     }
     
