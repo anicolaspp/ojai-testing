@@ -165,68 +165,25 @@ public class InMemoryStore implements DocumentStore {
         
         ConditionImpl condition = ojaiQuery.getCondition();
         long limit = ojaiQuery.getLimit();
+        
         String[] projectedFieldSet = ojaiQuery
                 .getProjectedFieldSet()
                 .stream()
                 .map(FieldPath::asJsonString)
                 .toArray(String[]::new);
         
-        Stream<Document> resultStream = documents.stream()
+        Stream<Document> resultStream = documents
+                .stream()
                 .filter(doc -> evalCondition(condition.getRoot(), doc))
                 .map(doc -> project(doc, projectedFieldSet))
                 .limit(limit);
         
-        return new QueryResult() {
-            @Override
-            public Document getQueryPlan() {
-                return connection.newDocument();
-            }
-            
-            @Override
-            public void streamTo(DocumentListener listener) {
-                resultStream.forEach(listener::documentArrived);
-            }
-            
-            @Override
-            public Iterator<Document> iterator() {
-                return resultStream.iterator();
-            }
-            
-            @Override
-            public Iterable<DocumentReader> documentReaders() {
-                throw new UnsupportedOperationException();
-            }
-            
-            @Override
-            public void close() throws OjaiException {
-            
-            }
-        };
+        return new ResultDocumentStream(resultStream, this.connection);
     }
     
     @Override
     public DocumentStream find() throws StoreException {
-        return new DocumentStream() {
-            @Override
-            public void streamTo(DocumentListener documentListener) {
-                documents.forEach(documentListener::documentArrived);
-            }
-            
-            @Override
-            public Iterator<Document> iterator() {
-                return documents.iterator();
-            }
-            
-            @Override
-            public Iterable<DocumentReader> documentReaders() {
-                throw new UnsupportedOperationException();
-            }
-            
-            @Override
-            public void close() throws OjaiException {
-            
-            }
-        };
+        return new ResultDocumentStream(documents.stream(), this.connection);
     }
     
     @Override
@@ -625,10 +582,10 @@ public class InMemoryStore implements DocumentStore {
     
     private boolean checkAndApply(String _id, QueryCondition condition, Consumer<Document> fn) {
         Document document = findById(_id, condition);
-    
-        if (document != null) {
-           fn.accept(document);
         
+        if (document != null) {
+            fn.accept(document);
+            
             return true;
         } else {
             return false;
@@ -648,7 +605,7 @@ public class InMemoryStore implements DocumentStore {
     @Override
     public boolean checkAndDelete(String _id, QueryCondition condition) throws StoreException {
         return checkAndApply(_id, condition, doc -> delete(_id));
-       
+        
     }
     
     @Override
@@ -864,5 +821,43 @@ public class InMemoryStore implements DocumentStore {
             }
         }
     }
+    
+    class ResultDocumentStream implements QueryResult {
+        
+        private Stream<Document> resultStream;
+        private Connection connection;
+        
+        ResultDocumentStream(Stream<Document> resultStream, Connection connection) {
+            
+            this.resultStream = resultStream;
+            this.connection = connection;
+        }
+        
+        @Override
+        public Document getQueryPlan() {
+            return connection.newDocument();
+        }
+        
+        @Override
+        public void streamTo(DocumentListener listener) {
+            resultStream.forEach(listener::documentArrived);
+        }
+        
+        @Override
+        public Iterator<Document> iterator() {
+            return resultStream.iterator();
+        }
+        
+        @Override
+        public Iterable<DocumentReader> documentReaders() {
+            throw new UnsupportedOperationException();
+        }
+        
+        @Override
+        public void close() throws OjaiException {
+        
+        }
+    }
+    
 }
 
