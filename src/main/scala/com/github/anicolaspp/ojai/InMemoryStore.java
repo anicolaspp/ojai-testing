@@ -356,9 +356,9 @@ public class InMemoryStore implements DocumentStore {
                     double inc = mutationOp.getOpValue().getDouble();
                     
                     increment(_id, mutationOp.getFieldPath().asPathString(), inc);
-                }           else if (mutationOp.getOpValue().getType() == Value.Type.DECIMAL) {
+                } else if (mutationOp.getOpValue().getType() == Value.Type.DECIMAL) {
                     byte inc = mutationOp.getOpValue().getByte();
-    
+                    
                     increment(_id, mutationOp.getFieldPath().asPathString(), inc);
                 }
                 
@@ -526,7 +526,9 @@ public class InMemoryStore implements DocumentStore {
         Document doc = findById(_id);
         
         if (doc != null) {
-            if (doc.getValue(field).getType() == Value.Type.BYTE) {
+            if (doc.getValue(field) == null) {
+                doc.set(field, inc);
+            } else if (doc.getValue(field).getType() == Value.Type.BYTE) {
                 byte value = doc.getByte(field);
                 
                 value += inc;
@@ -541,7 +543,9 @@ public class InMemoryStore implements DocumentStore {
         Document doc = findById(_id);
         
         if (doc != null) {
-            if (doc.getValue(field).getType() == Value.Type.SHORT) {
+            if (doc.getValue(field) == null) {
+                doc.set(field, inc);
+            } else if (doc.getValue(field).getType() == Value.Type.SHORT) {
                 short value = doc.getShort(field);
                 
                 value += inc;
@@ -574,7 +578,9 @@ public class InMemoryStore implements DocumentStore {
         Document doc = findById(_id);
         
         if (doc != null) {
-            if (doc.getValue(field).getType() == Value.Type.LONG) {
+            if (doc.getValue(field) == null) {
+                doc.set(field, inc);
+            } else if (doc.getValue(field).getType() == Value.Type.LONG) {
                 long value = doc.getLong(field);
                 
                 value += inc;
@@ -589,7 +595,9 @@ public class InMemoryStore implements DocumentStore {
         Document doc = findById(_id);
         
         if (doc != null) {
-            if (doc.getValue(field).getType() == Value.Type.FLOAT) {
+            if (doc.getValue(field) == null) {
+                doc.set(field, inc);
+            } else if (doc.getValue(field).getType() == Value.Type.FLOAT) {
                 float value = doc.getFloat(field);
                 
                 value += inc;
@@ -604,7 +612,9 @@ public class InMemoryStore implements DocumentStore {
         Document doc = findById(_id);
         
         if (doc != null) {
-            if (doc.getValue(field).getType() == Value.Type.DOUBLE) {
+            if (doc.getValue(field) == null) {
+                doc.set(field, inc);
+            } else if (doc.getValue(field).getType() == Value.Type.DOUBLE) {
                 double value = doc.getDouble(field);
                 
                 value += inc;
@@ -619,7 +629,9 @@ public class InMemoryStore implements DocumentStore {
         Document doc = findById(_id);
         
         if (doc != null) {
-            if (doc.getValue(field).getType() == Value.Type.DECIMAL) {
+            if (doc.getValue(field) == null) {
+                doc.set(field, inc);
+            } else if (doc.getValue(field).getType() == Value.Type.DECIMAL) {
                 BigDecimal value = doc.getDecimal(field);
                 
                 doc.set(field, value.add(inc));
