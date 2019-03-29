@@ -152,10 +152,28 @@ public class InMemoryStore implements DocumentStore {
     
     @Override
     public QueryResult find(Query query) throws StoreException {
+        throw new UnsupportedOperationException("find with query is not supported just yet");
         
-        
-        
-        return null;
+//        OjaiQuery ojaiQuery = (OjaiQuery) query;
+//
+//        ConditionImpl condition = ojaiQuery.getCondition();
+//        long limit = ojaiQuery.getLimit();
+//        Set<FieldPath> projectedFieldSet = ojaiQuery.getProjectedFieldSet();
+//
+//
+//        List<Document> collect = documents.stream()
+//                .limit(limit)
+//                .filter(doc -> {
+//                    Dbfilters.FilterMsg filterMsg = condition.getDescriptor().getFilterMsg();
+//
+//                    System.out.println(filterMsg);
+//
+//                    return true;
+//                }).collect(Collectors.toList());
+//
+//        System.out.println(collect.size());
+//
+//        return null;
     }
     
     @Override
@@ -259,8 +277,6 @@ public class InMemoryStore implements DocumentStore {
     }
     
     
-  
-    
     @Override
     public void update(String _id, DocumentMutation mutation) throws StoreException {
         InMemoryMutation mut = (InMemoryMutation) mutation;
@@ -275,13 +291,13 @@ public class InMemoryStore implements DocumentStore {
             delete(_id);
             
             if (mutationOp.getType() == MutationOp.Type.INCREMENT) {
-    
+                
                 mutationIncrement(_id, mutationOp, doc);
-    
+                
             } else if (mutationOp.getType() == MutationOp.Type.DELETE) {
-    
+                
                 mutationDelete(_id, mutationOp, doc);
-    
+                
             } else {
                 getFromValue(mutationOp.getFieldPath().asPathString(), mutationOp.getOpValue(), doc);
                 
