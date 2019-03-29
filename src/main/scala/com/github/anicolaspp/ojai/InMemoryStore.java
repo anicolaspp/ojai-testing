@@ -329,50 +329,58 @@ public class InMemoryStore implements DocumentStore {
             delete(_id);
             
             if (mutationOp.getType() == MutationOp.Type.INCREMENT) {
-                
-                insert(_id, doc);
-                
-                if (mutationOp.getOpValue().getType() == Value.Type.INT) {
-                    int inc = mutationOp.getOpValue().getInt();
-                    
-                    increment(_id, mutationOp.getFieldPath().asPathString(), inc);
-                } else if (mutationOp.getOpValue().getType() == Value.Type.BYTE) {
-                    byte inc = mutationOp.getOpValue().getByte();
-                    
-                    increment(_id, mutationOp.getFieldPath().asPathString(), inc);
-                } else if (mutationOp.getOpValue().getType() == Value.Type.LONG) {
-                    long inc = mutationOp.getOpValue().getLong();
-                    
-                    increment(_id, mutationOp.getFieldPath().asPathString(), inc);
-                } else if (mutationOp.getOpValue().getType() == Value.Type.SHORT) {
-                    short inc = mutationOp.getOpValue().getShort();
-                    
-                    increment(_id, mutationOp.getFieldPath().asPathString(), inc);
-                } else if (mutationOp.getOpValue().getType() == Value.Type.FLOAT) {
-                    float inc = mutationOp.getOpValue().getFloat();
-                    
-                    increment(_id, mutationOp.getFieldPath().asPathString(), inc);
-                } else if (mutationOp.getOpValue().getType() == Value.Type.DOUBLE) {
-                    double inc = mutationOp.getOpValue().getDouble();
-                    
-                    increment(_id, mutationOp.getFieldPath().asPathString(), inc);
-                } else if (mutationOp.getOpValue().getType() == Value.Type.DECIMAL) {
-                    byte inc = mutationOp.getOpValue().getByte();
-                    
-                    increment(_id, mutationOp.getFieldPath().asPathString(), inc);
-                }
-                
+    
+                mutationIncrement(_id, mutationOp, doc);
+    
             } else if (mutationOp.getType() == MutationOp.Type.DELETE) {
-                
-                doc.delete(mutationOp.getFieldPath());
-                
-                insert(_id, doc);
-                
+    
+                mutationDelete(_id, mutationOp, doc);
+    
             } else {
                 getFromValue(mutationOp.getFieldPath().asPathString(), mutationOp.getOpValue(), doc);
                 
                 insert(_id, doc);
             }
+        }
+    }
+    
+    private void mutationDelete(String _id, MutationOp mutationOp, Document doc) {
+        doc.delete(mutationOp.getFieldPath());
+        
+        insert(_id, doc);
+    }
+    
+    private void mutationIncrement(String _id, MutationOp mutationOp, Document doc) {
+        insert(_id, doc);
+        
+        if (mutationOp.getOpValue().getType() == Value.Type.INT) {
+            int inc = mutationOp.getOpValue().getInt();
+            
+            increment(_id, mutationOp.getFieldPath().asPathString(), inc);
+        } else if (mutationOp.getOpValue().getType() == Value.Type.BYTE) {
+            byte inc = mutationOp.getOpValue().getByte();
+            
+            increment(_id, mutationOp.getFieldPath().asPathString(), inc);
+        } else if (mutationOp.getOpValue().getType() == Value.Type.LONG) {
+            long inc = mutationOp.getOpValue().getLong();
+            
+            increment(_id, mutationOp.getFieldPath().asPathString(), inc);
+        } else if (mutationOp.getOpValue().getType() == Value.Type.SHORT) {
+            short inc = mutationOp.getOpValue().getShort();
+            
+            increment(_id, mutationOp.getFieldPath().asPathString(), inc);
+        } else if (mutationOp.getOpValue().getType() == Value.Type.FLOAT) {
+            float inc = mutationOp.getOpValue().getFloat();
+            
+            increment(_id, mutationOp.getFieldPath().asPathString(), inc);
+        } else if (mutationOp.getOpValue().getType() == Value.Type.DOUBLE) {
+            double inc = mutationOp.getOpValue().getDouble();
+            
+            increment(_id, mutationOp.getFieldPath().asPathString(), inc);
+        } else if (mutationOp.getOpValue().getType() == Value.Type.DECIMAL) {
+            byte inc = mutationOp.getOpValue().getByte();
+            
+            increment(_id, mutationOp.getFieldPath().asPathString(), inc);
         }
     }
     

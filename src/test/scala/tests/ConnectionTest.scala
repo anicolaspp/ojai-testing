@@ -1,6 +1,7 @@
 package tests
 
 import com.github.anicolaspp.ojai.{InMemoryStore, OjaiTesting}
+import org.ojai.FieldPath
 import org.scalatest.{BeforeAndAfterEach, FlatSpec, Matchers}
 
 import scala.util.{Failure, Try}
@@ -107,8 +108,23 @@ class ConnectionTest extends FlatSpec with OjaiTesting with Matchers with Before
     store.update("1", mutation)
 
     store.update("1", mutation.delete("count"))
-    
-    Try { store.findById("1").getInt("count") }.isFailure should be (true)
+
+    Try {
+      store.findById("1").getInt("count")
+    }.isFailure should be(true)
+  }
+
+  it should "decrement" in {
+    val store = documentStore("anicolaspp/mem")
+
+    val mutation = connection.newMutation()
+      .increment("count", 5)
+      .set("name", "pepe")
+      .decrement(FieldPath.parseFrom("count"), 1)
+
+    store.update("1", mutation)
+
+    store.findById("1").getInt("count") should be (4)
   }
 }
 

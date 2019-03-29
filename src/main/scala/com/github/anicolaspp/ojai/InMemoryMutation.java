@@ -1,5 +1,6 @@
 package com.github.anicolaspp.ojai;
 
+import com.mapr.db.rowcol.DBValueBuilderImpl;
 import com.mapr.db.rowcol.MutationImpl;
 import com.mapr.db.rowcol.SerializedFamilyInfo;
 import com.mapr.ojai.store.impl.Values;
@@ -30,14 +31,6 @@ public class InMemoryMutation extends MutationImpl {
         op.setFieldPath(FieldPath.parseFrom(path));
         op.setOpValue(value);
         op.setType(type);
-
-//        for (int i = 0; i < ops.size(); i++) {
-//            if (ops.get(i).getFieldPath().asPathString().equals(op.getFieldPath().asPathString())) {
-//                ops.set(i, op);
-//
-//                return;
-//            }
-//        }
         
         ops.add(op);
     }
@@ -705,7 +698,7 @@ public class InMemoryMutation extends MutationImpl {
     
     @Override
     public DocumentMutation delete(FieldPath path) {
-        newOp(path.asPathString(), new Values.NullValue(), MutationOp.Type.DELETE);
+        newOp(path.asPathString(), null, MutationOp.Type.DELETE);
         
         return super.delete(path);
     }
@@ -742,71 +735,99 @@ public class InMemoryMutation extends MutationImpl {
     
     @Override
     public DocumentMutation decrement(FieldPath path, byte dec) {
+        newOp(path.asPathString(), DBValueBuilderImpl.KeyValueBuilder.initFrom(-dec), MutationOp.Type.INCREMENT);
+        
         return super.decrement(path, dec);
     }
     
     @Override
     public DocumentMutation decrement(String path, byte dec) {
+        newOp(path, DBValueBuilderImpl.KeyValueBuilder.initFrom(-dec), MutationOp.Type.INCREMENT);
+        
         return super.decrement(path, dec);
     }
     
     @Override
     public DocumentMutation decrement(FieldPath path, short dec) {
+        newOp(path.asPathString(), new Values.ShortValue((short) (-1 * dec)), MutationOp.Type.INCREMENT);
+        
         return super.decrement(path, dec);
     }
     
     @Override
     public DocumentMutation decrement(String path, short dec) {
+        newOp(path, new Values.ShortValue((short) (-1 * dec)), MutationOp.Type.INCREMENT);
+        
         return super.decrement(path, dec);
     }
     
     @Override
     public DocumentMutation decrement(String path, int dec) {
+        newOp(path, new Values.IntValue(-dec), MutationOp.Type.INCREMENT);
+        
         return super.decrement(path, dec);
     }
     
     @Override
     public DocumentMutation decrement(FieldPath path, int dec) {
+        newOp(path.asPathString(), new Values.IntValue(-dec), MutationOp.Type.INCREMENT);
+        
         return super.decrement(path, dec);
     }
     
     @Override
     public DocumentMutation decrement(FieldPath path, long dec) {
+        newOp(path.asPathString(), new Values.LongValue(-dec), MutationOp.Type.INCREMENT);
+        
         return super.decrement(path, dec);
     }
     
     @Override
     public DocumentMutation decrement(String path, long dec) {
+        newOp(path, new Values.LongValue(-dec), MutationOp.Type.INCREMENT);
+        
         return super.decrement(path, dec);
     }
     
     @Override
     public DocumentMutation decrement(String path, float dec) {
+        newOp(path, new Values.FloatValue(-dec), MutationOp.Type.INCREMENT);
+        
         return super.decrement(path, dec);
     }
     
     @Override
     public DocumentMutation decrement(FieldPath path, float dec) {
+        newOp(path.asPathString(), new Values.FloatValue(-dec), MutationOp.Type.INCREMENT);
+        
         return super.decrement(path, dec);
     }
     
     @Override
     public DocumentMutation decrement(String path, double dec) {
+        newOp(path, new Values.DoubleValue(-dec), MutationOp.Type.INCREMENT);
+        
         return super.decrement(path, dec);
     }
     
     @Override
     public DocumentMutation decrement(FieldPath path, double dec) {
+        newOp(path.asPathString(), new Values.DoubleValue(-dec), MutationOp.Type.INCREMENT);
+        
         return super.decrement(path, dec);
     }
     
     @Override
     public DocumentMutation decrement(String path, BigDecimal dec) {
+        newOp(path, new Values.DecimalValue(dec.multiply(BigDecimal.valueOf(-1))), MutationOp.Type.INCREMENT);
+        
         return super.decrement(path, dec);
     }
     
     @Override
     public DocumentMutation decrement(FieldPath path, BigDecimal dec) {
+        newOp(path.asPathString(), new Values.DecimalValue(dec.multiply(BigDecimal.valueOf(-1))), MutationOp.Type.INCREMENT);
+        
         return super.decrement(path, dec);
     }
 }
