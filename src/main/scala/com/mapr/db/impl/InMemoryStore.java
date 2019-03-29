@@ -155,11 +155,28 @@ public class InMemoryStore implements DocumentStore {
         return null;
     }
     
-   
+    
+    private boolean evalCondition(ConditionNode condition, Document document) {
+        if (condition.isLeaf()) {
+            ConditionLeaf leaf = (ConditionLeaf) condition;
+        
+            return cmp(leaf.getValue(), document.getValue(leaf.getField()));
+        } else {
+            ConditionBlock block = (ConditionBlock) condition;
+            
+            if (block.getType() == ConditionBlock.BlockType.and) {
+                return block.getChildren().stream().allMatch(cond -> evalCondition(cond, document));
+            } else if (block.getType() == ConditionBlock.BlockType.or) {
+                return block.getChildren().stream().anyMatch(cond -> evalCondition(cond, document));
+            } else {
+                return false;
+            }
+        }
+    }
     
     @Override
     public QueryResult find(Query query) throws StoreException {
-
+        
         OjaiQuery ojaiQuery = (OjaiQuery) query;
         
         ConditionImpl condition = ojaiQuery.getCondition();
@@ -169,21 +186,10 @@ public class InMemoryStore implements DocumentStore {
         
         List<Document> collect = documents.stream()
                 .limit(limit)
-                .filter(doc -> {
-                    if (condition.getRoot().isLeaf()) {
-                        ConditionLeaf leaf = (ConditionLeaf) condition.getRoot();
-                        
-                        return cmp(leaf.getValue(), doc.getValue(leaf.getField()));
-                    } else {
-                        ConditionNode node = condition.getRoot();
-                        
-                    }
-                    
-                    return false;
-                })
+                .filter(doc -> evalCondition(condition.getRoot(), doc))
                 .map(doc -> {
                     Document projected = this.connection.newDocument();
-    
+                    
                     for (FieldPath path : projectedFieldSet) {
                         getFromValue(path.asPathString(), doc.getValue(path), projected);
                     }
@@ -197,25 +203,25 @@ public class InMemoryStore implements DocumentStore {
             public Document getQueryPlan() {
                 return null;
             }
-    
+            
             @Override
             public void streamTo(DocumentListener listener) {
-        
+            
             }
-    
+            
             @Override
             public Iterator<Document> iterator() {
                 return collect.iterator();
             }
-    
+            
             @Override
             public Iterable<DocumentReader> documentReaders() {
                 return null;
             }
-    
+            
             @Override
             public void close() throws OjaiException {
-        
+            
             }
         };
     }

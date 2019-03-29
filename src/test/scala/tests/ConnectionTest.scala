@@ -126,12 +126,12 @@ class ConnectionTest extends FlatSpec with OjaiTesting with Matchers with Before
 
     store.update("1", mutation)
 
-    store.findById("1").getInt("count") should be (4)
+    store.findById("1").getInt("count") should be(4)
   }
 
   import scala.collection.JavaConverters._
 
-  it should "find with query" in {
+  it should "find with query non-nested" in {
     val store = documentStore("anicolaspp/mem")
 
     val mutation = connection.newMutation()
@@ -151,7 +151,35 @@ class ConnectionTest extends FlatSpec with OjaiTesting with Matchers with Before
 
     val result = store.find(query)
 
-    result.asScala.toList.length should be (1)
+    result.asScala.toList.length should be(1)
+  }
+
+  it should "find with query nested" in {
+    val store = documentStore("anicolaspp/mem")
+
+    val mutation = connection.newMutation()
+      .increment("count", 5)
+      .set("name", "pepe")
+      .decrement(FieldPath.parseFrom("count"), 1)
+
+    store.update("1", mutation)
+
+    val cond = connection.newCondition()
+      .and()
+      .condition(connection.newCondition().is("name", QueryCondition.Op.EQUAL, "pepe").build())
+      .condition(connection.newCondition().is("count", QueryCondition.Op.EQUAL, 4).build())
+      .close()
+      .build()
+
+    val query = connection.newQuery()
+      .where(cond)
+      .select("count")
+      .limit(10)
+      .build()
+
+    val result = store.find(query)
+
+    result.asScala.toList.length should be(1)
   }
 }
 
