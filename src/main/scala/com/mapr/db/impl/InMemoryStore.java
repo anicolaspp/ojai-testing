@@ -24,9 +24,8 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class InMemoryStore implements DocumentStore {
     
@@ -127,51 +126,44 @@ public class InMemoryStore implements DocumentStore {
     
     @Override
     public Document findById(String _id, QueryCondition condition) throws StoreException {
-        return null;
+        return Stream.generate(find(this.connection.newQuery().where(condition).build()).iterator()::next)
+                .filter(doc -> doc.getIdString().equals(_id))
+                .findFirst()
+                .orElse(null);
     }
     
     @Override
     public Document findById(Value _id, QueryCondition condition) throws StoreException {
-        return null;
+        return findById(_id.getString(), condition);
     }
     
     @Override
     public Document findById(String _id, QueryCondition condition, String... fieldPaths) throws StoreException {
-        return null;
+        return Stream.generate(
+                find(this.connection
+                        .newQuery()
+                        .where(condition)
+                        .select(fieldPaths)
+                        .build())
+                        .iterator()::next)
+                .filter(doc -> doc.getIdString().equals(_id))
+                .findFirst()
+                .orElse(null);
     }
     
     @Override
     public Document findById(String _id, QueryCondition condition, FieldPath... fieldPaths) throws StoreException {
-        return null;
+        return findById(_id, condition, Arrays.stream(fieldPaths).map(FieldPath::asJsonString).toArray(String[]::new));
     }
     
     @Override
     public Document findById(Value _id, QueryCondition condition, String... fieldPaths) throws StoreException {
-        return null;
+        return findById(_id.getString(), condition, fieldPaths);
     }
     
     @Override
     public Document findById(Value _id, QueryCondition condition, FieldPath... fieldPaths) throws StoreException {
-        return null;
-    }
-    
-    
-    private boolean evalCondition(ConditionNode condition, Document document) {
-        if (condition.isLeaf()) {
-            ConditionLeaf leaf = (ConditionLeaf) condition;
-        
-            return cmp(leaf.getValue(), document.getValue(leaf.getField()));
-        } else {
-            ConditionBlock block = (ConditionBlock) condition;
-            
-            if (block.getType() == ConditionBlock.BlockType.and) {
-                return block.getChildren().stream().allMatch(cond -> evalCondition(cond, document));
-            } else if (block.getType() == ConditionBlock.BlockType.or) {
-                return block.getChildren().stream().anyMatch(cond -> evalCondition(cond, document));
-            } else {
-                return false;
-            }
-        }
+       return findById(_id.getString(), condition, fieldPaths);
     }
     
     @Override
@@ -183,8 +175,7 @@ public class InMemoryStore implements DocumentStore {
         long limit = ojaiQuery.getLimit();
         Set<FieldPath> projectedFieldSet = ojaiQuery.getProjectedFieldSet();
         
-        
-        List<Document> collect = documents.stream()
+        Stream<Document> collect = documents.stream()
                 .limit(limit)
                 .filter(doc -> evalCondition(condition.getRoot(), doc))
                 .map(doc -> {
@@ -195,8 +186,7 @@ public class InMemoryStore implements DocumentStore {
                     }
                     
                     return projected;
-                })
-                .collect(Collectors.toList());
+                });
         
         return new QueryResult() {
             @Override
@@ -253,37 +243,37 @@ public class InMemoryStore implements DocumentStore {
     
     @Override
     public DocumentStream findQuery(Query query) throws StoreException {
-        throw new UnsupportedOperationException();
+       return find(query);
     }
     
     @Override
     public DocumentStream findQuery(String queryJSON) throws StoreException {
-        throw new UnsupportedOperationException();
+       return find(this.connection.newQuery(queryJSON).build());
     }
     
     @Override
     public DocumentStream find(String... fieldPaths) throws StoreException {
-        throw new UnsupportedOperationException();
+        return find(this.connection.newQuery().select(fieldPaths).build());
     }
     
     @Override
     public DocumentStream find(FieldPath... fieldPaths) throws StoreException {
-        throw new UnsupportedOperationException();
+        return find(this.connection.newQuery().select(fieldPaths).build());
     }
     
     @Override
     public DocumentStream find(QueryCondition condition) throws StoreException {
-        throw new UnsupportedOperationException();
+        return find(this.connection.newQuery().where(condition).build());
     }
     
     @Override
     public DocumentStream find(QueryCondition condition, String... fieldPaths) throws StoreException {
-        throw new UnsupportedOperationException();
+        return find(this.connection.newQuery().where(condition).select(fieldPaths).build());
     }
     
     @Override
     public DocumentStream find(QueryCondition condition, FieldPath... fieldPaths) throws StoreException {
-        throw new UnsupportedOperationException();
+        return find(this.connection.newQuery().where(condition).select(fieldPaths).build());
     }
     
     @Override
@@ -325,7 +315,6 @@ public class InMemoryStore implements DocumentStore {
     public void insertOrReplace(DocumentStream stream, String fieldAsKey) throws MultiOpException {
         replace(stream, fieldAsKey);
     }
-    
     
     @Override
     public void update(String _id, DocumentMutation mutation) throws StoreException {
@@ -846,6 +835,24 @@ public class InMemoryStore implements DocumentStore {
         }
         
         return false;
+    }
+    
+    private boolean evalCondition(ConditionNode condition, Document document) {
+        if (condition.isLeaf()) {
+            ConditionLeaf leaf = (ConditionLeaf) condition;
+            
+            return cmp(leaf.getValue(), document.getValue(leaf.getField()));
+        } else {
+            ConditionBlock block = (ConditionBlock) condition;
+            
+            if (block.getType() == ConditionBlock.BlockType.and) {
+                return block.getChildren().stream().allMatch(cond -> evalCondition(cond, document));
+            } else if (block.getType() == ConditionBlock.BlockType.or) {
+                return block.getChildren().stream().anyMatch(cond -> evalCondition(cond, document));
+            } else {
+                return false;
+            }
+        }
     }
 }
 
