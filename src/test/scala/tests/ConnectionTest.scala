@@ -3,6 +3,8 @@ package tests
 import com.github.anicolaspp.ojai.{InMemoryStore, OjaiTesting}
 import org.scalatest.{BeforeAndAfterEach, FlatSpec, Matchers}
 
+import scala.util.{Failure, Try}
+
 class ConnectionTest extends FlatSpec with OjaiTesting with Matchers with BeforeAndAfterEach {
 
   override def beforeEach(): Unit = connection.close()
@@ -94,6 +96,20 @@ class ConnectionTest extends FlatSpec with OjaiTesting with Matchers with Before
     store.update("1", mutation)
 
     store.findById("1").getInt("count") should be(10)
+  }
+
+  it should "delete" in {
+    val store = documentStore("anicolaspp/mem")
+
+    val mutation = connection.newMutation()
+      .increment("count", 5)
+      .set("name", "pepe")
+
+    store.update("1", mutation)
+
+    store.update("1", mutation.delete("count"))
+    
+    Try { store.findById("1").getInt("count") }.isFailure should be (true)
   }
 }
 

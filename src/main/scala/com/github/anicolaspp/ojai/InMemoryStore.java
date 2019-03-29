@@ -362,6 +362,12 @@ public class InMemoryStore implements DocumentStore {
                     increment(_id, mutationOp.getFieldPath().asPathString(), inc);
                 }
                 
+            } else if (mutationOp.getType() == MutationOp.Type.DELETE) {
+                
+                doc.delete(mutationOp.getFieldPath());
+                
+                insert(_id, doc);
+                
             } else {
                 getFromValue(mutationOp.getFieldPath().asPathString(), mutationOp.getOpValue(), doc);
                 

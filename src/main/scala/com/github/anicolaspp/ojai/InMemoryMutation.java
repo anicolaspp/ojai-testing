@@ -696,6 +696,8 @@ public class InMemoryMutation extends MutationImpl {
     
     @Override
     public DocumentMutation delete(FieldPath path) {
+        newOp(path.asPathString(), new Values.NullValue(), MutationOp.Type.DELETE);
+        
         return super.delete(path);
     }
     
