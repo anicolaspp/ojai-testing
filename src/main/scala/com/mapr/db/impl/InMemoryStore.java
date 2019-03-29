@@ -624,32 +624,56 @@ public class InMemoryStore implements DocumentStore {
     
     @Override
     public boolean checkAndMutate(String _id, QueryCondition condition, DocumentMutation mutation) throws StoreException {
-        return false;
+        Document document = findById(_id, condition);
+        
+        if (document != null) {
+            update(_id, mutation);
+            
+            return true;
+        } else {
+            return false;
+        }
     }
     
     @Override
     public boolean checkAndMutate(Value _id, QueryCondition condition, DocumentMutation mutation) throws StoreException {
-        return false;
+        return checkAndMutate(_id.getString(), condition, mutation);
     }
     
     @Override
     public boolean checkAndDelete(String _id, QueryCondition condition) throws StoreException {
-        return false;
+        Document document = findById(_id, condition);
+        
+        if (document != null) {
+            delete(_id);
+            
+            return true;
+        } else {
+            return false;
+        }
     }
     
     @Override
     public boolean checkAndDelete(Value _id, QueryCondition condition) throws StoreException {
-        return false;
+        return checkAndDelete(_id.getString(), condition);
     }
     
     @Override
     public boolean checkAndReplace(String _id, QueryCondition condition, Document doc) throws StoreException {
-        return false;
+        Document document = findById(_id, condition);
+        
+        if (document != null) {
+            replace(_id, doc);
+            
+            return true;
+        } else {
+            return false;
+        }
     }
     
     @Override
     public boolean checkAndReplace(Value _id, QueryCondition condition, Document doc) throws StoreException {
-        return false;
+        return checkAndReplace(_id.getString(), condition, doc);
     }
     
     @Override
