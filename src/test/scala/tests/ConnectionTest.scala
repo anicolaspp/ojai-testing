@@ -145,6 +145,7 @@ class ConnectionTest extends FlatSpec with OjaiTesting with Matchers with Before
 
     val query = connection.newQuery()
       .where(cond)
+      .select("count")
       .limit(10)
       .build()
 

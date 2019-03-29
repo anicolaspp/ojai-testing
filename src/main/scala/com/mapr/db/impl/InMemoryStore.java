@@ -159,13 +159,12 @@ public class InMemoryStore implements DocumentStore {
     
     @Override
     public QueryResult find(Query query) throws StoreException {
-//        throw new UnsupportedOperationException("find with query is not supported just yet");
-        
+
         OjaiQuery ojaiQuery = (OjaiQuery) query;
         
         ConditionImpl condition = ojaiQuery.getCondition();
         long limit = ojaiQuery.getLimit();
-        Set<FieldPath> projectedFieldSet = ojaiQuery.getCondition().getProjections();
+        Set<FieldPath> projectedFieldSet = ojaiQuery.getProjectedFieldSet();
         
         
         List<Document> collect = documents.stream()
@@ -181,7 +180,17 @@ public class InMemoryStore implements DocumentStore {
                     }
                     
                     return false;
-                }).collect(Collectors.toList());
+                })
+                .map(doc -> {
+                    Document projected = this.connection.newDocument();
+    
+                    for (FieldPath path : projectedFieldSet) {
+                        getFromValue(path.asPathString(), doc.getValue(path), projected);
+                    }
+                    
+                    return projected;
+                })
+                .collect(Collectors.toList());
         
         return new QueryResult() {
             @Override
