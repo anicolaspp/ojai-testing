@@ -85,7 +85,6 @@ class ConnectionTest extends FlatSpec with OjaiTesting with Matchers with Before
       .set("age", 29)
       .increment("age", 1)
 
-
     store.update("1", mutation)
 
     val doc = store.findById("1")

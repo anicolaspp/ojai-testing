@@ -656,11 +656,16 @@ public class InMemoryMutation extends MutationImpl {
     
     @Override
     public DocumentMutation increment(String path, long inc) {
+        newOp(path, new Values.LongValue(inc), MutationOp.Type.INCREMENT);
+    
+        
         return super.increment(path, inc);
     }
     
     @Override
     public DocumentMutation increment(String path, float inc) {
+        newOp(path, new Values.FloatValue(inc), MutationOp.Type.INCREMENT);
+        
         return super.increment(path, inc);
     }
     
@@ -671,6 +676,8 @@ public class InMemoryMutation extends MutationImpl {
     
     @Override
     public DocumentMutation increment(String path, double inc) {
+        newOp(path, new Values.DoubleValue(inc), MutationOp.Type.INCREMENT);
+        
         return super.increment(path, inc);
     }
     
@@ -681,6 +688,8 @@ public class InMemoryMutation extends MutationImpl {
     
     @Override
     public DocumentMutation increment(String path, BigDecimal inc) {
+        newOp(path, new Values.DecimalValue(inc), MutationOp.Type.INCREMENT);
+        
         return super.increment(path, inc);
     }
     
