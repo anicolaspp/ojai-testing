@@ -24,7 +24,6 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
-import java.util.Set;
 import java.util.stream.Stream;
 
 public class InMemoryStore implements DocumentStore {
@@ -89,14 +88,6 @@ public class InMemoryStore implements DocumentStore {
         return findById(_id.getString());
     }
     
-    private Document project(Document document, String... fieldPaths) {
-        Document result = MapRDBImpl.newDocument();
-        
-        Arrays.stream(fieldPaths)
-                .forEach(field -> result.set(field, document.getValue(field)));
-        
-        return result;
-    }
     
     @Override
     public Document findById(String _id, String... fieldPaths) throws StoreException {
@@ -163,7 +154,7 @@ public class InMemoryStore implements DocumentStore {
     
     @Override
     public Document findById(Value _id, QueryCondition condition, FieldPath... fieldPaths) throws StoreException {
-       return findById(_id.getString(), condition, fieldPaths);
+        return findById(_id.getString(), condition, fieldPaths);
     }
     
     @Override
@@ -173,40 +164,36 @@ public class InMemoryStore implements DocumentStore {
         
         ConditionImpl condition = ojaiQuery.getCondition();
         long limit = ojaiQuery.getLimit();
-        Set<FieldPath> projectedFieldSet = ojaiQuery.getProjectedFieldSet();
+        String[] projectedFieldSet = ojaiQuery
+                .getProjectedFieldSet()
+                .stream()
+                .map(FieldPath::asJsonString)
+                .toArray(String[]::new);
         
-        Stream<Document> collect = documents.stream()
+        Stream<Document> resultStream = documents.stream()
                 .limit(limit)
                 .filter(doc -> evalCondition(condition.getRoot(), doc))
-                .map(doc -> {
-                    Document projected = this.connection.newDocument();
-                    
-                    for (FieldPath path : projectedFieldSet) {
-                        getFromValue(path.asPathString(), doc.getValue(path), projected);
-                    }
-                    
-                    return projected;
-                });
+                .map(doc -> project(doc, projectedFieldSet));
         
         return new QueryResult() {
             @Override
             public Document getQueryPlan() {
-                return null;
+                return connection.newDocument();
             }
             
             @Override
             public void streamTo(DocumentListener listener) {
-            
+                resultStream.forEach(listener::documentArrived);
             }
             
             @Override
             public Iterator<Document> iterator() {
-                return collect.iterator();
+                return resultStream.iterator();
             }
             
             @Override
             public Iterable<DocumentReader> documentReaders() {
-                return null;
+                throw new UnsupportedOperationException();
             }
             
             @Override
@@ -243,12 +230,12 @@ public class InMemoryStore implements DocumentStore {
     
     @Override
     public DocumentStream findQuery(Query query) throws StoreException {
-       return find(query);
+        return find(query);
     }
     
     @Override
     public DocumentStream findQuery(String queryJSON) throws StoreException {
-       return find(this.connection.newQuery(queryJSON).build());
+        return find(this.connection.newQuery(queryJSON).build());
     }
     
     @Override
@@ -338,7 +325,7 @@ public class InMemoryStore implements DocumentStore {
                 mutationDelete(_id, mutationOp, doc);
                 
             } else {
-                getFromValue(mutationOp.getFieldPath().asPathString(), mutationOp.getOpValue(), doc);
+                setFromValue(mutationOp.getFieldPath().asPathString(), mutationOp.getOpValue(), doc);
                 
                 insert(_id, doc);
             }
@@ -682,7 +669,7 @@ public class InMemoryStore implements DocumentStore {
         }
     }
     
-    private void getFromValue(String field, Value value, Document doc) {
+    private void setFromValue(String field, Value value, Document doc) {
         switch (value.getType()) {
             
             case BOOLEAN:
@@ -835,6 +822,15 @@ public class InMemoryStore implements DocumentStore {
         }
         
         return false;
+    }
+    
+    private Document project(Document document, String... fieldPaths) {
+        Document result = MapRDBImpl.newDocument();
+        
+        Arrays.stream(fieldPaths)
+                .forEach(field -> result.set(field, document.getValue(field)));
+        
+        return result;
     }
     
     private boolean evalCondition(ConditionNode condition, Document document) {
