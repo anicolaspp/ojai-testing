@@ -83,3 +83,24 @@ object Run extends OjaiTesting {
  
 }
 ```
+
+## Using Java
+
+If you want to use this library from Java, that can be done without drawbacks since we have the same testing facilities ready to be used. 
+
+```java
+public class JavaTesting implements JavaOjaiTesting {
+    
+    @Test
+    public void testGetConnection() {
+        assert connection() instanceof InMemoryConnection;
+    }
+    
+    @Test
+    public void testGetStore() {
+        assert documentStore("anicolaspp/java_store") instanceof InMemoryStore;
+    }
+}
+```
+
+Notice that by implementing `JavaOjaiTesting` we gain access to the same constructs, `connection()` and `documentStore()` and from here we just write our normal Java test using your the testing framework of your choice. 
