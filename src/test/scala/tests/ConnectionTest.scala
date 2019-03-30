@@ -135,7 +135,7 @@ class ConnectionTest extends FlatSpec
   import scala.collection.JavaConverters._
 
   it should "find with query non-nested" in {
-    val store = documentStore("anicolaspp/mem")
+    val store = documentStore("anicolaspp/aaa")
 
     val mutation = connection.newMutation()
       .increment("count", 5)

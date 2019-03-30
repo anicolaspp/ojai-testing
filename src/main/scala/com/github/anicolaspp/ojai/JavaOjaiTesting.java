@@ -8,14 +8,14 @@ import org.ojai.store.DriverManager;
 public interface JavaOjaiTesting extends OjaiTesting {
     
     @Override
-    default public Connection connection() {
+    default Connection connection() {
         DriverManager.registerDriver(InMemoryDriver.apply());
         
         return DriverManager.getConnection("ojai:anicolaspp:mem");
     }
     
     @Override
-    default public DocumentStore documentStore(String storeName) {
+    default DocumentStore documentStore(String storeName) {
         return connection().getStore(storeName);
     }
 }
