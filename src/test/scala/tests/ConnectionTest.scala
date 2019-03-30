@@ -208,6 +208,13 @@ class ConnectionTest extends FlatSpec
 
     connection.newDocument(document.asJsonString()).asJsonString() should be (document.asJsonString())
   }
+
+  import com.mapr.ojai.store.impl.InMemoryDriver
+
+  it should "use the InMemoryDriver" in {
+
+    InMemoryDriver.getClass should be (connection.getDriver.getClass)
+  }
 }
 
 
