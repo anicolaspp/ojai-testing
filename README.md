@@ -1,4 +1,6 @@
 # ojai-testing
+[![Build Status](https://travis-ci.org/anicolaspp/ojai-testing.svg?branch=master)](https://travis-ci.org/anicolaspp/ojai-testing)
+
 Embeded In-Memory Implementation of OJAI Driver to be used in testing
 
 The aim of this project is to provide to a way of running an OJAI Document Store in memory that can be used for mocking 
