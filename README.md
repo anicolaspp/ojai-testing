@@ -106,3 +106,7 @@ public class JavaTesting implements JavaOjaiTesting {
 ```
 
 Notice that by implementing `JavaOjaiTesting` we gain access to the same constructs, `connection()` and `documentStore()` and from here we just write our normal Java tests using the testing framework of your choice. 
+
+## Cross Build
+
+This project is cross built for Scala `2.11.8` and `2.12.8`. Make sure you select the right version for your Scala.
