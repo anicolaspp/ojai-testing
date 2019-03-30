@@ -184,6 +184,30 @@ class ConnectionTest extends FlatSpec
 
     result.asScala.toList.length should be(1)
   }
+
+  it should "create query from json" in {
+
+    val query = connection
+      .newQuery()
+      .where(connection
+        .newCondition()
+        .is("name",  QueryCondition.Op.EQUAL, "pepe")
+        .build())
+      .select("a", "b", "c")
+      .build()
+
+    connection.newQuery(query.asJsonString()).asJsonString() should be (query.asJsonString())
+  }
+
+  it should "create document from json" in {
+
+    val document = connection
+      .newDocument()
+      .set("name", "pepe")
+      .set("value", 5)
+
+    connection.newDocument(document.asJsonString()).asJsonString() should be (document.asJsonString())
+  }
 }
 
 
