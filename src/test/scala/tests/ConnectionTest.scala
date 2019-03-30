@@ -215,6 +215,13 @@ class ConnectionTest extends FlatSpec
 
     InMemoryDriver.getClass should be (connection.getDriver.getClass)
   }
+
+  it should "throw with wrong store protocol" in {
+
+    Try {connection.getStore("asfasdf")}.isFailure should be (true)
+    Try {connection.getStore("anicolaspp")}.isSuccess should be (true)
+
+  }
 }
 
 
