@@ -6,7 +6,7 @@ name := "ojai-testing"
 scalaVersion := "2.11.8"
 
 
-//lazy val supportedScalaVersions = Seq(scalaVersion., "2.12")
+lazy val supportedScalaVersions = Seq("2.11.8", "2.12.8")
 
 organization in ThisBuild := "com.github.anicolaspp"
 
@@ -51,6 +51,8 @@ lazy val maprdbconnector = project.in(file("."))
     releasePublishArtifactsAction := PgpKeys.publishSigned.value,
 
     releaseCrossBuild := true,
+    
+    crossScalaVersions := supportedScalaVersions,
 
     releaseProcess := Seq[ReleaseStep](
       checkSnapshotDependencies, // : ReleaseStep
