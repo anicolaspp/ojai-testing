@@ -105,4 +105,4 @@ public class JavaTesting implements JavaOjaiTesting {
 }
 ```
 
-Notice that by implementing `JavaOjaiTesting` we gain access to the same constructs, `connection()` and `documentStore()` and from here we just write our normal Java tests using your the testing framework of your choice. 
+Notice that by implementing `JavaOjaiTesting` we gain access to the same constructs, `connection()` and `documentStore()` and from here we just write our normal Java tests using the testing framework of your choice. 
