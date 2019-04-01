@@ -172,13 +172,27 @@ public class InMemoryStore implements DocumentStore {
                 .map(FieldPath::asJsonString)
                 .toArray(String[]::new);
         
-        Stream<Document> resultStream = documents
-                .stream()
-                .filter(doc -> evalCondition(condition.getRoot(), doc))
-                .map(doc -> project(doc, projectedFieldSet))
-                .limit(limit);
+        Stream<Document> resultStream =
+                withCondition(documents.stream(), condition)
+                        .map(doc -> project(doc, projectedFieldSet));
         
-        return new ResultDocumentStream(resultStream, this.connection);
+        return new ResultDocumentStream(withLimit(resultStream, limit), this.connection);
+    }
+    
+    private Stream<Document> withCondition(Stream<Document> stream, ConditionImpl condition) {
+        if (condition == null || condition.getRoot() == null) {
+            return stream;
+        } else {
+            return stream.filter(doc -> evalCondition(condition.getRoot(), doc));
+        }
+    }
+    
+    private Stream<Document> withLimit(Stream<Document> stream, long limit) {
+        if (limit >= 0) {
+            return stream.limit(limit);
+        } else {
+            return stream;
+        }
     }
     
     @Override
@@ -344,7 +358,7 @@ public class InMemoryStore implements DocumentStore {
         checkId(_id);
         
         if (index(_id) < 0) {
-            documents.add(doc);
+            documents.add(doc.set("_id", _id));
         }
     }
     
