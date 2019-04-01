@@ -841,9 +841,9 @@ public class InMemoryStore implements DocumentStore {
         private Stream<Document> resultStream;
         private Connection connection;
         
-        ResultDocumentStream(Stream<Document> resultStream, Connection connection) {
+        ResultDocumentStream(Stream<Document> stream, Connection connection) {
             
-            this.resultStream = resultStream;
+            this.resultStream = stream;
             this.connection = connection;
         }
         

@@ -31,14 +31,14 @@ lazy val maprdbconnector = project.in(file("."))
 
     publishMavenStyle := true,
 
-    publishTo := Some(Resolver.file("file", new File("/Users/nperez/.m2/repository"))),
+    //    publishTo := Some(Resolver.file("file", new File("/Users/nperez/.m2/repository"))),
 
-    //    publishTo in ThisBuild := Some(
-    //      if (isSnapshot.value)
-    //        Opts.resolver.sonatypeSnapshots
-    //      else
-    //        Opts.resolver.sonatypeStaging
-    //    ),
+    publishTo in ThisBuild := Some(
+      if (isSnapshot.value)
+        Opts.resolver.sonatypeSnapshots
+      else
+        Opts.resolver.sonatypeStaging
+    ),
 
     publishArtifact in Test := false,
 
@@ -51,7 +51,7 @@ lazy val maprdbconnector = project.in(file("."))
     releasePublishArtifactsAction := PgpKeys.publishSigned.value,
 
     releaseCrossBuild := true,
-    
+
     crossScalaVersions := supportedScalaVersions,
 
     releaseProcess := Seq[ReleaseStep](
