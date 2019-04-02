@@ -1,5 +1,5 @@
 # ojai-testing
-[![Build Status](https://travis-ci.org/anicolaspp/ojai-testing.svg?branch=master)](https://travis-ci.org/anicolaspp/ojai-testing)[![codecov](https://codecov.io/gh/anicolaspp/ojai-testing/branch/master/graph/badge.svg)](https://codecov.io/gh/anicolaspp/ojai-testing)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.anicolaspp/ojai-testing_2.11/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.anicolaspp/ojai-testing_2.11) [![Build Status](https://travis-ci.org/anicolaspp/ojai-testing.svg?branch=master)](https://travis-ci.org/anicolaspp/ojai-testing)[![codecov](https://codecov.io/gh/anicolaspp/ojai-testing/branch/master/graph/badge.svg)](https://codecov.io/gh/anicolaspp/ojai-testing)
 
 Embeded In-Memory Implementation of OJAI Driver to be used in testing
 
