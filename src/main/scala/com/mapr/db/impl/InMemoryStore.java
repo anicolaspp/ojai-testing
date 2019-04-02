@@ -810,12 +810,16 @@ public class InMemoryStore implements DocumentStore {
     }
     
     private Document project(Document document, String... fieldPaths) {
-        Document result = connection.newDocument();
-        
-        Arrays.stream(fieldPaths)
-                .forEach(field -> result.set(field, document.getValue(field)));
-        
-        return result;
+        if (fieldPaths.length == 0){
+            return document;
+        } else {
+            Document result = connection.newDocument();
+    
+            Arrays.stream(fieldPaths)
+                    .forEach(field -> result.set(field, document.getValue(field)));
+    
+            return result;
+        }
     }
     
     private boolean evalCondition(ConditionNode condition, Document document) {
