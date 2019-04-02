@@ -110,3 +110,21 @@ Notice that by implementing `JavaOjaiTesting` we gain access to the same constru
 ## Cross Build
 
 This project is cross built for Scala `2.11.8` and `2.12.8`. Make sure you select the right version for your Scala.
+
+## Linking
+
+### Maven
+
+```xml
+<dependency>
+  <groupId>com.github.anicolaspp</groupId>
+  <artifactId>ojai-testing_2.X</artifactId>
+  <version>1.0.3</version>
+</dependency>
+```
+
+### SBT
+
+```sbt
+libraryDependencies += "com.github.anicolaspp" % "ojai-testing" % "1.0.3"
+```
