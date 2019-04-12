@@ -103,6 +103,30 @@ class ConnectionTest extends FlatSpec
     store.findById("1").getInt("count") should be(10)
   }
 
+  import scala.collection.JavaConversions._
+
+  it should "append in list" in {
+
+    val store = documentStore("anicolaspp/mem")
+
+    val doc = connection.newDocument()
+      .set("name", "nico")
+      .set("values", List.empty[Int])
+
+    store.insert("1", doc)
+
+    val appendMutation = connection.newMutation()
+      .append("values", List(1, 2, 3, 4, 5))
+
+    store.update("1", appendMutation)
+
+    val result = store.findById("1")
+
+    result.getIdString should be("1")
+    result.getList("values").length should be(5)
+  }
+  
+
   it should "delete" in {
     val store = documentStore("anicolaspp/mem")
 
@@ -191,12 +215,12 @@ class ConnectionTest extends FlatSpec
       .newQuery()
       .where(connection
         .newCondition()
-        .is("name",  QueryCondition.Op.EQUAL, "pepe")
+        .is("name", QueryCondition.Op.EQUAL, "pepe")
         .build())
       .select("a", "b", "c")
       .build()
 
-    connection.newQuery(query.asJsonString()).asJsonString() should be (query.asJsonString())
+    connection.newQuery(query.asJsonString()).asJsonString() should be(query.asJsonString())
   }
 
   it should "create document from json" in {
@@ -206,22 +230,27 @@ class ConnectionTest extends FlatSpec
       .set("name", "pepe")
       .set("value", 5)
 
-    connection.newDocument(document.asJsonString()).asJsonString() should be (document.asJsonString())
+    connection.newDocument(document.asJsonString()).asJsonString() should be(document.asJsonString())
   }
 
   import com.mapr.ojai.store.impl.InMemoryDriver
 
   it should "use the InMemoryDriver" in {
 
-    InMemoryDriver.getClass should be (connection.getDriver.getClass)
+    InMemoryDriver.getClass should be(connection.getDriver.getClass)
   }
 
   it should "throw with wrong store protocol" in {
 
-    Try {connection.getStore("asfasdf")}.isFailure should be (true)
-    Try {connection.getStore("anicolaspp")}.isSuccess should be (true)
+    Try {
+      connection.getStore("asfasdf")
+    }.isFailure should be(true)
+    Try {
+      connection.getStore("anicolaspp")
+    }.isSuccess should be(true)
 
   }
+
 }
 
 

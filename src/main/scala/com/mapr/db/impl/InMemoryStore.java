@@ -23,8 +23,11 @@ import org.ojai.store.exceptions.StoreException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class InMemoryStore implements DocumentStore {
@@ -296,6 +299,9 @@ public class InMemoryStore implements DocumentStore {
                 
                 mutationDelete(_id, mutationOp, doc);
                 
+            } else if (mutationOp.getType() == MutationOp.Type.APPEND) {
+                
+                mutationAppend(_id, mutationOp, doc);
             } else {
                 setFromValue(mutationOp.getFieldPath().asPathString(), mutationOp.getOpValue(), doc);
                 
@@ -709,8 +715,20 @@ public class InMemoryStore implements DocumentStore {
                 doc.delete(field);
                 break;
         }
+    }
+    
+    private void mutationAppend(String _id, MutationOp mutationOp, Document doc) {
+        List<Object> newValues = mutationOp.getOpValue().getList();
         
+        String field = mutationOp.getFieldPath().asPathString();
         
+        List<Object> currentValues = doc.getList(field);
+    
+        List<Object> values = Stream.of(currentValues, newValues).flatMap(Collection::stream).collect(Collectors.toList());
+        
+        doc.set(field, values);
+        
+        insert(_id, doc);
     }
     
     private void mutationDelete(String _id, MutationOp mutationOp, Document doc) {
@@ -810,14 +828,14 @@ public class InMemoryStore implements DocumentStore {
     }
     
     private Document project(Document document, String... fieldPaths) {
-        if (fieldPaths.length == 0){
+        if (fieldPaths.length == 0) {
             return document;
         } else {
             Document result = connection.newDocument();
-    
+            
             Arrays.stream(fieldPaths)
                     .forEach(field -> result.set(field, document.getValue(field)));
-    
+            
             return result;
         }
     }
