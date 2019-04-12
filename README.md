@@ -1,5 +1,5 @@
 # ojai-testing
-[![Build Status](https://travis-ci.org/anicolaspp/ojai-testing.svg?branch=master)](https://travis-ci.org/anicolaspp/ojai-testing)[![codecov](https://codecov.io/gh/anicolaspp/ojai-testing/branch/master/graph/badge.svg)](https://codecov.io/gh/anicolaspp/ojai-testing)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.anicolaspp/ojai-testing_2.11/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.anicolaspp/ojai-testing_2.11) [![Build Status](https://travis-ci.org/anicolaspp/ojai-testing.svg?branch=master)](https://travis-ci.org/anicolaspp/ojai-testing)[![codecov](https://codecov.io/gh/anicolaspp/ojai-testing/branch/master/graph/badge.svg)](https://codecov.io/gh/anicolaspp/ojai-testing)
 
 Embeded In-Memory Implementation of OJAI Driver to be used in testing
 
@@ -110,3 +110,21 @@ Notice that by implementing `JavaOjaiTesting` we gain access to the same constru
 ## Cross Build
 
 This project is cross built for Scala `2.11.8` and `2.12.8`. Make sure you select the right version for your Scala.
+
+## Linking
+
+### Maven
+
+```xml
+<dependency>
+  <groupId>com.github.anicolaspp</groupId>
+  <artifactId>ojai-testing_2.X</artifactId>
+  <version>1.0.3</version>
+</dependency>
+```
+
+### SBT
+
+```sbt
+libraryDependencies += "com.github.anicolaspp" % "ojai-testing_2.X" % "1.0.3"
+```
