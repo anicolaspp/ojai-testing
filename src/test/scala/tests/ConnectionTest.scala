@@ -147,13 +147,28 @@ class ConnectionTest extends FlatSpec
 
     result.getIdString should be("1")
 
-    val m = result.getList("values")
-
-    println(m)
-    println(m.length)
-
-
     result.getList("values").length should be(List("testing", "hello", "word").flatMap(_.getBytes()).length)
+  }
+
+  it should "append in String" in {
+
+    val store = documentStore("anicolaspp/mem")
+
+    val doc = connection.newDocument()
+      .set("name", "nico")
+      .set("values", "testing")
+
+    store.insert("1", doc)
+
+    val appendMutation = connection.newMutation()
+      .append("values", " append string")
+
+    store.update("1", appendMutation)
+
+    val result = store.findById("1")
+
+    result.getIdString should be("1")
+    result.getString("values") should be ("testing append string")
   }
 
   it should "delete" in {

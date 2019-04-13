@@ -736,16 +736,23 @@ public class InMemoryStore implements DocumentStore {
     
     private void mutationAppend(String _id, MutationOp mutationOp, Document doc) {
         
-        List<Object> newValues = getValueToAppend(mutationOp.getOpValue());
-        
         String field = mutationOp.getFieldPath().asPathString();
-        
-        List<Object> currentValues = getValueToAppend(doc.getValue(field));
-        
-        List<Object> values = Stream.of(currentValues, newValues).flatMap(Collection::stream).collect(Collectors.toList());
-        
-        doc.set(field, values);
-        
+    
+        if (mutationOp.getOpValue().getType() == Value.Type.STRING) {
+            String newValue = mutationOp.getOpValue().getString();
+            String value = doc.getString(field) + newValue;
+    
+            doc.set(field, value);
+        } else {
+            List<Object> newValues = getValueToAppend(mutationOp.getOpValue());
+            
+            List<Object> currentValues = getValueToAppend(doc.getValue(field));
+            
+            List<Object> values = Stream.of(currentValues, newValues).flatMap(Collection::stream).collect(Collectors.toList());
+            
+            doc.set(field, values);
+        }
+    
         insert(_id, doc);
     }
     

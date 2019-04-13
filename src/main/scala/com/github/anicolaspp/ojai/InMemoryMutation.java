@@ -552,6 +552,8 @@ public class InMemoryMutation extends MutationImpl {
     
     @Override
     public DocumentMutation append(String path, String value) {
+        newOp(path, new Values.StringValue(value), MutationOp.Type.APPEND);
+        
         return super.append(path, value);
     }
     
