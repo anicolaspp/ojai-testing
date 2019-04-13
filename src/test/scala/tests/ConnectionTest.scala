@@ -1,5 +1,7 @@
 package tests
 
+import java.nio.ByteBuffer
+
 import com.github.anicolaspp.ojai.OjaiTesting
 import com.mapr.db.impl.InMemoryStore
 import org.ojai.FieldPath
@@ -125,7 +127,34 @@ class ConnectionTest extends FlatSpec
     result.getIdString should be("1")
     result.getList("values").length should be(5)
   }
-  
+
+  it should "append in byte array" in {
+
+    val store = documentStore("anicolaspp/mem")
+
+    val doc = connection.newDocument()
+      .set("name", "nico")
+      .set("values", "testing".getBytes())
+
+    store.insert("1", doc)
+
+    val appendMutation = connection.newMutation()
+      .append("values", List("hello", "word").flatMap(_.getBytes()).toArray)
+
+    store.update("1", appendMutation)
+
+    val result = store.findById("1")
+
+    result.getIdString should be("1")
+
+    val m = result.getList("values")
+
+    println(m)
+    println(m.length)
+
+
+    result.getList("values").length should be(List("testing", "hello", "word").flatMap(_.getBytes()).length)
+  }
 
   it should "delete" in {
     val store = documentStore("anicolaspp/mem")

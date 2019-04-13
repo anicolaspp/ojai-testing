@@ -572,6 +572,8 @@ public class InMemoryMutation extends MutationImpl {
     
     @Override
     public DocumentMutation append(String path, byte[] value) {
+        newOp(path, new Values.BinaryValue(ByteBuffer.wrap(value)), MutationOp.Type.APPEND);
+        
         return super.append(path, value);
     }
     

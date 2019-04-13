@@ -717,13 +717,31 @@ public class InMemoryStore implements DocumentStore {
         }
     }
     
+    private List<Object> getValueToAppend(Value value) {
+        if (value.getType() == Value.Type.BINARY) {
+            byte[] m = value.getBinary().array();
+            
+            List<Object> result = new ArrayList<>();
+            
+            for (byte b : m) {
+                result.add(b);
+            }
+            
+            return result;
+            
+        } else {
+            return value.getList();
+        }
+    }
+    
     private void mutationAppend(String _id, MutationOp mutationOp, Document doc) {
-        List<Object> newValues = mutationOp.getOpValue().getList();
+        
+        List<Object> newValues = getValueToAppend(mutationOp.getOpValue());
         
         String field = mutationOp.getFieldPath().asPathString();
         
-        List<Object> currentValues = doc.getList(field);
-    
+        List<Object> currentValues = getValueToAppend(doc.getValue(field));
+        
         List<Object> values = Stream.of(currentValues, newValues).flatMap(Collection::stream).collect(Collectors.toList());
         
         doc.set(field, values);
