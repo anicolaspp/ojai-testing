@@ -1,4 +1,4 @@
-package com.mapr.db.impl;
+package com.github.anicolaspp.ojai;
 
 import org.ojai.Document;
 import org.ojai.FieldPath;
@@ -15,7 +15,7 @@ public class ListProjector implements PathProjector {
     private Document document;
     private Connection connection;
     
-    ListProjector(Document document, Connection connection) {
+    public ListProjector(Document document, Connection connection) {
         
         this.document = document;
         this.connection = connection;

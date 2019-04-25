@@ -1,6 +1,7 @@
 package com.mapr.db.impl;
 
 import com.github.anicolaspp.ojai.InMemoryMutation;
+import com.github.anicolaspp.ojai.MultiPathProjector;
 import com.mapr.db.rowcol.KeyValue;
 import com.mapr.ojai.store.impl.OjaiQuery;
 import org.ojai.Document;

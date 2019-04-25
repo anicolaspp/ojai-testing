@@ -1,4 +1,4 @@
-package com.mapr.db.impl
+package com.github.anicolaspp.ojai
 
 import org.ojai.Document
 
