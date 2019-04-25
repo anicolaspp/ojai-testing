@@ -8,6 +8,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class ListProjector implements PathProjector {
     
@@ -32,31 +33,36 @@ public class ListProjector implements PathProjector {
         
         return tryGetList(firstSegment)
                 .map(Collection::stream)
-                .map(stream -> {
-                    List<Document> result = stream
-                            .map(d -> connection.newDocument(d))
-                            .map(d -> {
-                                
-                                String rest = path.substring(firstSegment.length() + 1);
-                                
-                                if (!rest.isEmpty()) {
-                                    return new DocumentProjector(d, connection).projectPath(rest);
-                                    
-                                } else {
-                                    return d;
-                                }
-                                
-                            })
-                            .filter(d -> !d.isEmpty())
-                            .collect(Collectors.toList());
-                    
-                    if (result.size() == 0) {
-                        return connection.newDocument();
-                    } else {
-                        return connection.newDocument().set(firstSegment, result);
-                    }
-                })
+                .map(stream -> getEmbeddedDocuments(path, firstSegment, stream))
+                .map(embeddedDocs -> getOuterDocument(firstSegment, embeddedDocs))
                 .orElse(connection.newDocument());
+    }
+    
+    private Document getOuterDocument(String firstSegment, List<Document> embeddedDocs) {
+        if (embeddedDocs.size() == 0) {
+            return connection.newDocument();
+        } else {
+            return connection.newDocument().set(firstSegment, embeddedDocs);
+        }
+    }
+    
+    private List<Document> getEmbeddedDocuments(String path, String firstSegment, Stream<Object> stream) {
+        return stream
+                .map(d -> connection.newDocument(d))
+                .map(d -> {
+                    
+                    String rest = path.substring(firstSegment.length() + 1);
+                    
+                    if (!rest.isEmpty()) {
+                        return new DocumentProjector(d, connection).projectPath(rest);
+                        
+                    } else {
+                        return d;
+                    }
+                    
+                })
+                .filter(d -> !d.isEmpty())
+                .collect(Collectors.toList());
     }
 }
 

@@ -5,6 +5,7 @@ import org.ojai.exceptions.DecodingException;
 import org.ojai.store.Connection;
 
 import java.util.Arrays;
+import java.util.Optional;
 
 public class LinearProjector implements PathProjector {
     private Document document;
@@ -20,35 +21,41 @@ public class LinearProjector implements PathProjector {
         String[] pathSegments = path.replace("\"", "").split("\\.");
         String firstSegment = pathSegments[0];
         
-        String rest = Arrays.stream(pathSegments).skip(1).reduce("", (a, b) -> a + b);
-        
-        if (!rest.isEmpty()) {
-            
-            Document subDoc = tryGetSubDoc(firstSegment, document);
-            
-            if (subDoc == null) {
-                return connection.newDocument();
-            }
-            
-            return connection
-                    .newDocument()
-                    .set(firstSegment, new DocumentProjector(connection.newDocument(document.getValue(firstSegment)), connection).projectPath(rest));
-            
+        if (isLastSegment(pathSegments)) {
+            return getFinalDocument(firstSegment);
         } else {
-            try {
-                return connection.newDocument().set(firstSegment, document.getValue(firstSegment));
-            } catch (NullPointerException e) {
-                return connection.newDocument();
-            }
-            
+            return tryGetSubDoc(firstSegment, document)
+                    .map(subDoc -> {
+                        Document embedded = new DocumentProjector(connection.newDocument(document.getValue(firstSegment)), connection)
+                                .projectPath(getNextSegments(pathSegments));
+                        
+                        return connection.newDocument().set(firstSegment, embedded);
+                    })
+                    .orElse(connection.newDocument());
         }
     }
     
-    private Document tryGetSubDoc(String field, Document document) {
+    private boolean isLastSegment(String[] pathSegments) {
+        return Arrays.stream(pathSegments).skip(1).reduce("", (a, b) -> a + b).isEmpty();
+    }
+    
+    private String getNextSegments(String[] pathSegments) {
+        return Arrays.stream(pathSegments).skip(1).reduce("", (a, b) -> a + b);
+    }
+    
+    private Document getFinalDocument(String firstSegment) {
         try {
-            return connection.newDocument(document.getValue(field));
-        } catch (DecodingException ex) {
+            return connection.newDocument().set(firstSegment, document.getValue(firstSegment));
+        } catch (NullPointerException e) {
             return connection.newDocument();
+        }
+    }
+    
+    private Optional<Document> tryGetSubDoc(String field, Document document) {
+        try {
+            return Optional.of(connection.newDocument(document.getValue(field)));
+        } catch (DecodingException ex) {
+            return Optional.empty();
         }
     }
 }
