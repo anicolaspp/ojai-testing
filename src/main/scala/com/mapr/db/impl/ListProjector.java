@@ -51,7 +51,7 @@ public class ListProjector implements PathProjector {
                 .map(d -> connection.newDocument(d))
                 .map(d -> {
                     
-                    String rest = path.substring(firstSegment.length() + 1);
+                    String rest = path.substring(firstSegment.length() + 3);
                     
                     if (!rest.isEmpty()) {
                         return new DocumentProjector(d, connection).projectPath(rest);

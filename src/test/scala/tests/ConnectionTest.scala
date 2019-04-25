@@ -354,7 +354,7 @@ class ConnectionTest extends FlatSpec
 
     )
 
-    val query = connection.newQuery().select("_id","address.line1", "address")
+    val query = connection.newQuery().select("_id","address.line1", "address", "emails[].type", "emails[].t[].x", "emails[].t[].m")
 
     println(query.asJsonString())
 
