@@ -9,7 +9,6 @@ import org.ojai.DocumentReader;
 import org.ojai.DocumentStream;
 import org.ojai.FieldPath;
 import org.ojai.Value;
-import org.ojai.exceptions.DecodingException;
 import org.ojai.exceptions.OjaiException;
 import org.ojai.store.Connection;
 import org.ojai.store.DocumentMutation;
@@ -853,135 +852,8 @@ public class InMemoryStore implements DocumentStore {
         return false;
     }
     
-    private Document tryGetSubDoc(String field, Document document) {
-        try {
-            return connection.newDocument(document.getValue(field));
-        } catch (DecodingException ex) {
-            return connection.newDocument();
-        }
-    }
-    
-    private Document projectPath(String path, Document document) {
-        
-        if (document == null) {
-            System.out.println("NULL DOCUMENTS");
-            
-            return connection.newDocument();
-        }
-        
-        String[] parts = path.replace("\"", "").split("\\.");
-        
-        if (parts.length == 0) {
-            return document;
-        } else {
-            
-            String first = parts[0];
-            
-            if (first.contains("[]")) {
-                
-                String current = first.replace("[]", "");
-                
-                List<Object> xs = document.getList(FieldPath.parseFrom(current));
-                
-                if (xs == null) {
-                    return connection.newDocument();
-                }
-                
-                List<Document> result = xs.stream()
-                        .map(d -> connection.newDocument(d))
-                        .map(d -> {
-                            
-                            String rest = path.substring(first.length() + 1);
-                            
-                            if (!rest.isEmpty()) {
-                                return projectPath(rest, d);
-                                
-                            } else {
-                                return d;
-                            }
-                            
-                        })
-                        .filter(d -> !d.isEmpty())
-                        .collect(Collectors.toList());
-                
-                if (result.size() == 0) {
-                    return connection.newDocument();
-                }
-                
-                return connection.newDocument().set(current, result);
-                
-            } else {
-                
-                String rest = Arrays.stream(parts).skip(1).reduce("", (a, b) -> a + b);
-                
-                if (!rest.isEmpty()) {
-                    
-                    Document subDoc = tryGetSubDoc(first, document);
-                    
-                    if (subDoc == null) {
-                        return connection.newDocument();
-                    }
-                    
-                    return connection
-                            .newDocument()
-                            .set(first, projectPath(rest, connection.newDocument(document.getValue(first))));
-                    
-                } else {
-                    try {
-                        return connection.newDocument().set(first, document.getValue(first));
-                    } catch (NullPointerException e) {
-                        return connection.newDocument();
-                    }
-                    
-                }
-            }
-        }
-    }
-    
     private Document project(Document document, String... fieldPaths) {
-        if (fieldPaths.length == 0) {
-            return document;
-        } else {
-            Document result = connection.newDocument();
-            
-            Arrays.stream(fieldPaths)
-                    .forEach(field -> {
-                        
-                        if (field.contains(".")) {
-                            
-                            Document d = projectPath(field.replace("\"", ""), document);
-                            
-                            String[] parts = field
-                                    .replace("[]", "")
-                                    .replace("\"", "")
-                                    .split("\\.");
-                            
-                            if (!d.isEmpty()) {
-                                
-                                Value currentValue = result.getValue(parts[0]);
-                                
-                                if (currentValue == null) {
-                                    
-                                    result.set(parts[0], d.getValue(parts[0]));
-                                } else if (currentValue.getType() == Value.Type.ARRAY) {
-                                    result.set(parts[0],
-                                            Stream.concat(
-                                                    currentValue.getList().stream(),
-                                                    d.getList(parts[0]).stream()
-                                            ).collect(Collectors.toList())
-                                    );
-                                } else if (currentValue.getType() == Value.Type.MAP) {
-                                    result.set(parts[0], currentValue.getMap());
-                                }
-                            }
-                            
-                        } else if (document.getValue(field) != null) {
-                            result.set(field, document.getValue(field));
-                        }
-                    });
-            
-            return result;
-        }
+        return new MultiPathProjector(document, connection).projectPath(fieldPaths);
     }
     
     private boolean evalCondition(ConditionNode condition, Document document) {
@@ -1038,6 +910,6 @@ public class InMemoryStore implements DocumentStore {
         
         }
     }
-    
 }
+
 
