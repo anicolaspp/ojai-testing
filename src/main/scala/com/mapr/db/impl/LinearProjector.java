@@ -53,7 +53,9 @@ public class LinearProjector implements PathProjector {
     
     private Optional<Document> tryGetSubDoc(String field, Document document) {
         try {
-            return Optional.of(connection.newDocument(document.getValue(field)));
+            Document subDoc = connection.newDocument(document.getValue(field));
+            
+            return Optional.of(subDoc);
         } catch (DecodingException ex) {
             return Optional.empty();
         }
