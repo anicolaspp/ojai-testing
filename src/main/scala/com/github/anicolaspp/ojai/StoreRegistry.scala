@@ -31,5 +31,4 @@ object StoreRegistry {
 
     override def clean(): Unit = stores.clear()
   }
-
 }
