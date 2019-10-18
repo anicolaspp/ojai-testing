@@ -883,8 +883,15 @@ public class InMemoryStore implements DocumentStore {
         return new MultiPathProjector(document, connection).projectPath(fieldPaths);
     }
 
+    private String add(String parent, String key) {
+        if (parent.isEmpty()) {
+            return key;
+        } else {
+            return parent + "." + key;
+        }
+    }
 
-    private Stream<Value> getAllLeafValues(Document document) {
+    private Stream<Pair<String, Value>> getAllLeafValues(Document document, String parent) {
         return document.asMap().keySet()
                 .stream()
                 .flatMap(key -> {
@@ -895,11 +902,11 @@ public class InMemoryStore implements DocumentStore {
                                 .getList()
                                 .stream()
                                 .map(o -> connection.newDocument(o))
-                                .flatMap(this::getAllLeafValues);
+                                .flatMap(d -> getAllLeafValues(d, add(parent, key)));
                     } else if (value.getType() == Value.Type.MAP) {
-                        return getAllLeafValues(connection.newDocument(value.getMap()));
+                        return getAllLeafValues(connection.newDocument(value.getMap()), add(parent, key));
                     } else {
-                        return Stream.of(value);
+                        return Stream.of(new Pair<>(add(parent, key), value));
                     }
                 });
     }
@@ -910,8 +917,10 @@ public class InMemoryStore implements DocumentStore {
 
             Document projected = new DocumentProjector(document, connection).projectPath(leaf.getField().asPathString());
 
-            return getAllLeafValues(projected).anyMatch(value -> cmp(leaf.getValue(), value));
-
+            return getAllLeafValues(projected, "")
+                    .filter(pair -> pair.getKey().equals(leaf.getField().asPathString().replace("[]", "")))
+                    .map(Pair::getValue)
+                    .anyMatch(value -> cmp(leaf.getValue(), value));
         } else {
             ConditionBlock block = (ConditionBlock) condition;
 

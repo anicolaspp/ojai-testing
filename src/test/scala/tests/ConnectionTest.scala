@@ -385,8 +385,22 @@ class ConnectionTest extends FlatSpec
     val result = store.find(query).asScala.toList
 
     result.size should be (1)
+  }
 
+  it should "find in container field and ignored embedded" in {
+    val first = connection.newDocument("{\n  \"_id\": \"001\",\n  \"tasks\": [\n    {\"b\": \"t001\", \"a\": {\"a\": \"t002\"}\n},\n    {\"a\": \"t003\"}\n, {\"b\": \"t002\"}\n  ]\n}")
 
+    val store = documentStore("anicolaspp/containerfields2")
+
+    store.insert(first)
+
+    val condition = connection.newCondition().is("tasks[].a", QueryCondition.Op.EQUAL, "t002").build()
+
+    val query = connection.newQuery().where(condition).build()
+
+    val result = store.find(query).asScala.toList
+
+    result.size should be (0)
   }
 
 
