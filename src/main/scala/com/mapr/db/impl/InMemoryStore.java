@@ -1,19 +1,15 @@
 package com.mapr.db.impl;
 
-import com.github.anicolaspp.ojai.DocumentProjector;
 import com.github.anicolaspp.ojai.InMemoryMutation;
 import com.github.anicolaspp.ojai.MultiPathProjector;
+import com.github.anicolaspp.ojai.ResultDocumentStream;
 import com.mapr.db.index.IndexFieldDesc;
-import com.mapr.db.rowcol.KeyValue;
 import com.mapr.ojai.store.impl.OjaiQuery;
 import javafx.util.Pair;
 import org.ojai.Document;
-import org.ojai.DocumentListener;
-import org.ojai.DocumentReader;
 import org.ojai.DocumentStream;
 import org.ojai.FieldPath;
 import org.ojai.Value;
-import org.ojai.exceptions.OjaiException;
 import org.ojai.store.Connection;
 import org.ojai.store.DocumentMutation;
 import org.ojai.store.DocumentStore;
@@ -28,7 +24,6 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -196,7 +191,7 @@ public class InMemoryStore implements DocumentStore {
         if (condition == null || condition.getRoot() == null) {
             return stream;
         } else {
-            return stream.filter(doc -> evalCondition(condition.getRoot(), doc));
+            return stream.filter(doc -> new ConditionEvaluator(condition.getRoot(), connection).evalOn(doc));
         }
     }
 
@@ -730,23 +725,6 @@ public class InMemoryStore implements DocumentStore {
         }
     }
 
-    private List<Object> getValueToAppend(Value value) {
-        if (value.getType() == Value.Type.BINARY) {
-            byte[] m = value.getBinary().array();
-
-            List<Object> result = new ArrayList<>();
-
-            for (byte b : m) {
-                result.add(b);
-            }
-
-            return result;
-
-        } else {
-            return value.getList();
-        }
-    }
-
     private void mutationAppend(String _id, MutationOp mutationOp, Document doc) {
 
         String field = mutationOp.getFieldPath().asPathString();
@@ -837,138 +815,25 @@ public class InMemoryStore implements DocumentStore {
         return -1;
     }
 
-    private boolean cmp(KeyValue keyValue, Value value) {
-        switch (value.getType()) {
+    private List<Object> getValueToAppend(Value value) {
+        if (value.getType() == Value.Type.BINARY) {
+            byte[] m = value.getBinary().array();
 
-            case NULL:
-                return keyValue.getType().getCode() == Value.TYPE_CODE_NULL;
-            case BOOLEAN:
-                return keyValue.getBoolean() == value.getBoolean();
-            case STRING:
-                return keyValue.getString().equals(value.getString());
-            case BYTE:
-                return keyValue.getByte() == value.getByte();
-            case SHORT:
-                return keyValue.getShort() == value.getShort();
-            case INT:
-                return keyValue.getInt() == value.getInt();
-            case LONG:
-                return keyValue.getLong() == value.getLong();
-            case FLOAT:
-                return keyValue.getFloat() == value.getFloat();
-            case DOUBLE:
-                return keyValue.getDouble() == value.getDouble();
-            case DECIMAL:
-                return keyValue.getDecimal().equals(value.getDecimal());
-            case DATE:
-                return keyValue.getDate() == value.getDate();
-            case TIME:
-                return keyValue.getTime() == value.getTime();
-            case TIMESTAMP:
-                return keyValue.getTimestamp() == value.getTimestamp();
-            case INTERVAL:
-                return keyValue.getInterval() == value.getInterval();
-            case BINARY:
-                return keyValue.getBinary() == value.getBinary();
-            case MAP:
-                return keyValue.getMap() == value.getMap();
-            case ARRAY:
-                return keyValue.getList() == value.getList();
+            List<Object> result = new ArrayList<>();
+
+            for (byte b : m) {
+                result.add(b);
+            }
+
+            return result;
+
+        } else {
+            return value.getList();
         }
-
-        return false;
     }
 
     private Document project(Document document, String... fieldPaths) {
         return new MultiPathProjector(document, connection).projectPath(fieldPaths);
-    }
-
-    private String add(String parent, String key) {
-        if (parent.isEmpty()) {
-            return key;
-        } else {
-            return parent + "." + key;
-        }
-    }
-
-    private Stream<Pair<String, Value>> getAllLeafValues(Document document, String parent) {
-        return document.asMap().keySet()
-                .stream()
-                .flatMap(key -> {
-                    Value value = document.getValue(key);
-
-                    if (value.getType() == Value.Type.ARRAY) {
-                        return value
-                                .getList()
-                                .stream()
-                                .map(o -> connection.newDocument(o))
-                                .flatMap(d -> getAllLeafValues(d, add(parent, key)));
-                    } else if (value.getType() == Value.Type.MAP) {
-                        return getAllLeafValues(connection.newDocument(value.getMap()), add(parent, key));
-                    } else {
-                        return Stream.of(new Pair<>(add(parent, key), value));
-                    }
-                });
-    }
-
-    private boolean evalCondition(ConditionNode condition, Document document) {
-        if (condition.isLeaf()) {
-            ConditionLeaf leaf = (ConditionLeaf) condition;
-
-            Document projected = new DocumentProjector(document, connection).projectPath(leaf.getField().asPathString());
-
-            return getAllLeafValues(projected, "")
-                    .filter(pair -> pair.getKey().equals(leaf.getField().asPathString().replace("[]", "")))
-                    .map(Pair::getValue)
-                    .anyMatch(value -> cmp(leaf.getValue(), value));
-        } else {
-            ConditionBlock block = (ConditionBlock) condition;
-
-            if (block.getType() == ConditionBlock.BlockType.and) {
-                return block.getChildren().stream().allMatch(cond -> evalCondition(cond, document));
-            } else if (block.getType() == ConditionBlock.BlockType.or) {
-                return block.getChildren().stream().anyMatch(cond -> evalCondition(cond, document));
-            } else {
-                return false;
-            }
-        }
-    }
-
-    static class ResultDocumentStream implements QueryResult {
-
-        private Stream<Document> resultStream;
-        private Connection connection;
-
-        ResultDocumentStream(Stream<Document> stream, Connection connection) {
-
-            this.resultStream = stream;
-            this.connection = connection;
-        }
-
-        @Override
-        public Document getQueryPlan() {
-            return connection.newDocument();
-        }
-
-        @Override
-        public void streamTo(DocumentListener listener) {
-            resultStream.forEach(listener::documentArrived);
-        }
-
-        @Override
-        public Iterator<Document> iterator() {
-            return resultStream.iterator();
-        }
-
-        @Override
-        public Iterable<DocumentReader> documentReaders() {
-            throw new UnsupportedOperationException();
-        }
-
-        @Override
-        public void close() throws OjaiException {
-
-        }
     }
 }
 
