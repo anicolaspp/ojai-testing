@@ -85,4 +85,8 @@ lazy val maprdbconnector = project.in(file("."))
     )
   )
 
+excludeDependencies += "javax.jms"
+excludeDependencies += "com.sun.jdmk"
+excludeDependencies += "com.sun.jmx"
+
 addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.0" cross CrossVersion.full)

@@ -369,6 +369,28 @@ class ConnectionTest extends FlatSpec
     result.foreach(println)
   }
 
+  it should "find in container fields" in {
+    val first = connection.newDocument("{\n  \"_id\": \"001\",\n  \"tasks\": [\n    {\"a\": \"t001\"},\n    {\"a\": \"t002\"}\n, {\"b\": \"t002\"}\n  ]\n}")
+    val second = connection.newDocument("{\n  \"_id\": \"002\",\n  \"tasks\": [\n    {\"a\": \"t003\"}\n  ]\n}")
+
+    val store = documentStore("anicolaspp/containerfields")
+
+    store.insert(first)
+    store.insert(second)
+
+    val condition = connection.newCondition().is("tasks[].a", QueryCondition.Op.EQUAL, "t002").build()
+
+    val query = connection.newQuery().where(condition).build()
+
+    val result = store.find(query).asScala.toList
+
+    result.size should be (1)
+
+
+  }
+
+
+
   it should "insert binary id" in {
     val store = documentStore("anicolaspp/binary")
 

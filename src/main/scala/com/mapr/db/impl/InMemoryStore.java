@@ -1,5 +1,6 @@
 package com.mapr.db.impl;
 
+import com.github.anicolaspp.ojai.DocumentProjector;
 import com.github.anicolaspp.ojai.InMemoryMutation;
 import com.github.anicolaspp.ojai.MultiPathProjector;
 import com.mapr.db.index.IndexFieldDesc;
@@ -882,11 +883,35 @@ public class InMemoryStore implements DocumentStore {
         return new MultiPathProjector(document, connection).projectPath(fieldPaths);
     }
 
+
+    private Stream<Value> getAllLeafValues(Document document) {
+        return document.asMap().keySet()
+                .stream()
+                .flatMap(key -> {
+                    Value value = document.getValue(key);
+
+                    if (value.getType() == Value.Type.ARRAY) {
+                        return value
+                                .getList()
+                                .stream()
+                                .map(o -> connection.newDocument(o))
+                                .flatMap(this::getAllLeafValues);
+                    } else if (value.getType() == Value.Type.MAP) {
+                        return getAllLeafValues(connection.newDocument(value.getMap()));
+                    } else {
+                        return Stream.of(value);
+                    }
+                });
+    }
+
     private boolean evalCondition(ConditionNode condition, Document document) {
         if (condition.isLeaf()) {
             ConditionLeaf leaf = (ConditionLeaf) condition;
 
-            return cmp(leaf.getValue(), document.getValue(leaf.getField()));
+            Document projected = new DocumentProjector(document, connection).projectPath(leaf.getField().asPathString());
+
+            return getAllLeafValues(projected).anyMatch(value -> cmp(leaf.getValue(), value));
+
         } else {
             ConditionBlock block = (ConditionBlock) condition;
 
@@ -900,7 +925,7 @@ public class InMemoryStore implements DocumentStore {
         }
     }
 
-    class ResultDocumentStream implements QueryResult {
+    static class ResultDocumentStream implements QueryResult {
 
         private Stream<Document> resultStream;
         private Connection connection;
