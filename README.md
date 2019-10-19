@@ -58,7 +58,7 @@ When running multiple tests, you can share the same store instance across all of
 class ShareStoreTests extends FlatSpec with OjaiTesting with Matchers {
 
   it should "keep values on store" in {
-    val store = connection.getStore("amy_store")
+    val store = connection.getStore("my_store")
  
     store.insert(connection.newDocument().setId("5"))
     
