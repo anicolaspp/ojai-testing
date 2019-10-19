@@ -2,12 +2,13 @@ package com.mapr.db.impl;
 
 import com.github.anicolaspp.ojai.DocumentProjector;
 import com.mapr.db.rowcol.KeyValue;
-import javafx.util.Pair;
 import org.ojai.Document;
 import org.ojai.Value;
 import org.ojai.store.Connection;
+import scala.Tuple2;
 
 import java.util.stream.Stream;
+
 
 public class ConditionEvaluator {
     private ConditionNode condition;
@@ -29,8 +30,8 @@ public class ConditionEvaluator {
             Document projected = new DocumentProjector(document, connection).projectPath(leaf.getField().asPathString());
 
             return getAllLeafValues(projected, "")
-                    .filter(pair -> pair.getKey().equals(leaf.getField().asPathString().replace("[]", "")))
-                    .map(Pair::getValue)
+                    .filter(pair -> pair._1.equals(leaf.getField().asPathString().replace("[]", "")))
+                    .map(Tuple2::_2)
                     .anyMatch(value -> cmp(leaf.getValue(), value));
         } else {
             ConditionBlock block = (ConditionBlock) condition;
@@ -95,7 +96,7 @@ public class ConditionEvaluator {
         }
     }
 
-    private Stream<Pair<String, Value>> getAllLeafValues(Document document, String parent) {
+    private Stream<Tuple2<String, Value>> getAllLeafValues(Document document, String parent) {
         return document.asMap().keySet()
                 .stream()
                 .flatMap(key -> {
@@ -110,7 +111,7 @@ public class ConditionEvaluator {
                     } else if (value.getType() == Value.Type.MAP) {
                         return getAllLeafValues(connection.newDocument(value.getMap()), add(parent, key));
                     } else {
-                        return Stream.of(new Pair<>(add(parent, key), value));
+                        return Stream.of(new Tuple2<>(add(parent, key), value));
                     }
                 });
     }
