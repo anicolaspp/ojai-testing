@@ -17,10 +17,10 @@ object StoreRegistry {
 
   def apply(): StoreRegistry = new StoreRegistry {
 
-    private val stores = scala.collection.mutable.HashMap.empty[String, DocumentStore]
+    private lazy val stores = scala.collection.mutable.HashMap.empty[String, DocumentStore]
 
     override def putStore(storeName: String, store: DocumentStore): Unit = {
-      if (stores.get(storeName).isEmpty){
+      if (stores.get(storeName).isEmpty) {
         stores.put(storeName, store)
       }
     }

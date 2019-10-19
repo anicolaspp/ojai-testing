@@ -10,8 +10,8 @@ import org.ojai.{Document, DocumentBuilder}
 
 object InMemoryDriver extends Driver {
 
-  def apply() = this
-  
+  def apply(): InMemoryDriver.type = this
+
   override def getName = "InMemDriver"
 
   override def getValueBuilder: ValueBuilder = JsonValueBuilder.INSTANCE

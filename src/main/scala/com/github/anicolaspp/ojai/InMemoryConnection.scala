@@ -34,10 +34,6 @@ class InMemoryConnection(driver: Driver) extends Connection {
   }
 
   override def getStore(storeName: String): DocumentStore = {
-//    if (!storeName.startsWith("anicolaspp")) {
-//      throw new IllegalArgumentException("storeName should start with 'anicolaspp'")
-//    }
-
     val store = new InMemoryStore(storeName, this)
 
     storeRegistry.putStore(storeName, store)
@@ -51,7 +47,7 @@ class InMemoryConnection(driver: Driver) extends Connection {
 
   override def deleteStore(storeName: String): Boolean = storeRegistry.removeStore(storeName)
 
-  private val storeRegistry = StoreRegistry()
+  private lazy val storeRegistry = StoreRegistry()
 }
 
 

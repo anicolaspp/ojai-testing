@@ -384,7 +384,7 @@ class ConnectionTest extends FlatSpec
 
     val result = store.find(query).asScala.toList
 
-    result.size should be (1)
+    result.size should be(1)
   }
 
   it should "find in container field and ignored embedded" in {
@@ -400,18 +400,18 @@ class ConnectionTest extends FlatSpec
 
     val result = store.find(query).asScala.toList
 
-    result.size should be (0)
+    result.size should be(0)
   }
-
-
 
   it should "insert binary id" in {
     val store = documentStore("anicolaspp/binary")
 
     store.insert(new Values.BinaryValue(ByteBuffer.wrap("value".getBytes())), connection.newDocument().set("age", 30))
 
-    store.find().asScala.toList.head.getInt("age") should be (30)
+    store.find().asScala.toList.head.getInt("age") should be(30)
   }
 }
+
+
 
 
