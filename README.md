@@ -54,7 +54,7 @@ class SomeTests extends FlatSpec with OjaiTesting with Matchers {
 ```
 When running multiple tests, you can share the same store instance across all of them. 
 
-```
+```scala
 class ShareStoreTests extends FlatSpec with OjaiTesting with Matchers {
 
   it should "keep values on store" in {
@@ -79,7 +79,7 @@ class ShareStoreTests extends FlatSpec with OjaiTesting with Matchers {
 
 However, this behavior might not desirable under certain conditions. In those case, you can clean the stores by calling `.close()` on the store.
 
-```
+```scala
 class ConnectionResetTest extends FlatSpec
   with OjaiTesting
   with Matchers
@@ -111,7 +111,6 @@ Notice we are mixing in the `OjaiTesting` trait to auto register the correct dri
 After we have gained access to the `DocumentStore` we should be able to run OJAI queries on it. 
 
 ```scala
-
 object Run extends OjaiTesting {
 
  def run() = {
