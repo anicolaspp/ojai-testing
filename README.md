@@ -34,7 +34,7 @@ val connection = DriverManager.getConnection("ojai:anicolaspp:mem")
 
 val store = connection.getStore("anicolaspp/mem")
 ```
-The `storeName` being passed must start with `anicolaspp`.
+The `storeName` can be any name you want. 
 
 There will be only a single instance per store name so the following holds.
 
@@ -52,6 +52,60 @@ class SomeTests extends FlatSpec with OjaiTesting with Matchers {
   }
 }
 ```
+When running multiple tests, you can share the same store instance across all of them. 
+
+```
+class ShareStoreTests extends FlatSpec with OjaiTesting with Matchers {
+
+  it should "keep values on store" in {
+    val store = connection.getStore("amy_store")
+ 
+    store.insert(connection.newDocument().setId("5"))
+    
+    store.find().iterator.hasNext() should be (true)
+  }
+  
+   it should "has values on it" in {
+    val store = connection.getStore("my_store")
+
+    val it = store.find().iterator
+    
+    it.hasNext should be (true)
+    it.next.getId().toString() should be ("5")
+  }
+
+}
+```
+
+However, this behavior might not desirable under certain conditions. In those case, you can clean the stores by calling `.close()` on the store.
+
+```
+class ConnectionResetTest extends FlatSpec
+  with OjaiTesting
+  with Matchers
+  with BeforeAndAfterEach {
+
+  it should "insert clean up on reset" in {
+    val store = documentStore("someStore")
+    store.insert(connection.newDocument().setId("hello"))
+
+    store.find().iterator().hasNext should be (true)
+
+    val sameStore = documentStore("someStore")
+    sameStore.find().iterator().hasNext should be (true)
+
+    sameStore.close()
+
+    val emptyStore = documentStore("someStore")
+    emptyStore.find().iterator().hasNext should be (false)
+  }
+
+}
+```
+
+In order to clean after each test, you can use `override def beforeEach(): Unit = connection.close()`
+
+
 Notice we are mixing in the `OjaiTesting` trait to auto register the correct driver and to have access to `connection` and `storeHandler`.
 
 After we have gained access to the `DocumentStore` we should be able to run OJAI queries on it. 
