@@ -172,12 +172,6 @@ public class InMemoryStore implements DocumentStore {
                 .map(FieldPath::asJsonString)
                 .toArray(String[]::new);
 
-//        List<Tuple2<FieldPath, IndexFieldDesc.Order>> orderingDefinition = ojaiQuery
-//                .getOrderByFields()
-//                .stream()
-//                .map(field -> new Tuple2(field, ojaiQuery.getFieldOrdering(field)))
-//                .collect(Collectors.toList());
-
         Stream<Document> resultStream =
                 withCondition(documents.stream(), condition)
                         .map(doc -> project(doc, projectedFieldSet));
