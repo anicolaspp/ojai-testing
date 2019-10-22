@@ -5,11 +5,20 @@ import org.ojai.store.{Connection, DocumentStore, DriverManager}
 
 trait OjaiTesting {
 
-  lazy val connection: Connection = {
+  def getConnection(): Connection //= connection
+
+  def documentStore(storeName: String): DocumentStore //= connection.getStore(storeName)
+}
+
+trait ScalaOjaiTesting extends OjaiTesting {
+
+  private lazy val connection: Connection = {
     DriverManager.registerDriver(InMemoryDriver)
 
     DriverManager.getConnection("ojai:anicolaspp:mem")
   }
 
-  def documentStore(storeName: String): DocumentStore = connection.getStore(storeName)
+  override def getConnection(): Connection = connection
+
+  override def documentStore(storeName: String): DocumentStore = connection.getStore(storeName)
 }

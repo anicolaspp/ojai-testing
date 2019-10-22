@@ -5,17 +5,23 @@ import org.ojai.store.Connection;
 import org.ojai.store.DocumentStore;
 import org.ojai.store.DriverManager;
 
-public interface JavaOjaiTesting extends OjaiTesting {
-    
-    @Override
-    default Connection connection() {
+public class JavaOjaiTesting implements OjaiTesting {
+
+    private Connection connection;
+
+    public JavaOjaiTesting() {
         DriverManager.registerDriver(InMemoryDriver.apply());
-        
-        return DriverManager.getConnection("ojai:anicolaspp:mem");
+
+        connection = DriverManager.getConnection("ojai:anicolaspp:mem");
     }
-    
+
     @Override
-    default DocumentStore documentStore(String storeName) {
-        return connection().getStore(storeName);
+    public Connection getConnection() {
+        return connection;
+    }
+
+    @Override
+    public DocumentStore documentStore(String storeName) {
+        return getConnection().getStore(storeName);
     }
 }

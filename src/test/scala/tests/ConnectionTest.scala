@@ -2,7 +2,7 @@ package tests
 
 import java.nio.ByteBuffer
 
-import com.github.anicolaspp.ojai.OjaiTesting
+import com.github.anicolaspp.ojai.{OjaiTesting, ScalaOjaiTesting}
 import com.mapr.db.impl.InMemoryStore
 import com.mapr.ojai.store.impl.Values
 import org.ojai
@@ -13,21 +13,21 @@ import org.scalatest.{BeforeAndAfterEach, FlatSpec, Matchers}
 import scala.util.Try
 
 class ConnectionTest extends FlatSpec
-  with OjaiTesting
+  with ScalaOjaiTesting
   with Matchers
   with BeforeAndAfterEach {
 
-  override def beforeEach(): Unit = connection.close()
+  override def beforeEach(): Unit = getConnection().close()
 
 
   "Connection" should "create document" in {
 
-    connection.newDocument().asJsonString() should be("{}")
+    getConnection().newDocument().asJsonString() should be("{}")
   }
 
   it should "create document with fields" in {
 
-    connection
+    getConnection()
       .newDocument()
       .set("_id", "1")
       .set("name", "nico")
@@ -37,14 +37,14 @@ class ConnectionTest extends FlatSpec
 
   it should "use InMemoryStore" in {
 
-    connection.getStore("anicolaspp/mem").isInstanceOf[InMemoryStore] should be(true)
+    getConnection().getStore("anicolaspp/mem").isInstanceOf[InMemoryStore] should be(true)
 
   }
 
   it should "mutation set not doc" in {
     val store = documentStore("anicolaspp/mem")
 
-    val mutation = connection.newMutation().set("name", "nico")
+    val mutation = getConnection().newMutation().set("name", "nico")
 
     store.update("1", mutation)
 
@@ -57,9 +57,9 @@ class ConnectionTest extends FlatSpec
   it should "mutation set existing doc" in {
     val store = documentStore("anicolaspp/mem")
 
-    store.insert(connection.newDocument().set("_id", "1").set("name", "pepe").set("age", 20))
+    store.insert(getConnection().newDocument().set("_id", "1").set("name", "pepe").set("age", 20))
 
-    val mutation = connection.newMutation().set("name", "nico")
+    val mutation = getConnection().newMutation().set("name", "nico")
 
     store.update("1", mutation)
 
@@ -75,7 +75,7 @@ class ConnectionTest extends FlatSpec
 
     val store = documentStore("anicolaspp/mem")
 
-    val mutation = connection.newMutation().setOrReplace("name", "nico")
+    val mutation = getConnection().newMutation().setOrReplace("name", "nico")
 
     store.update("1", mutation)
 
@@ -89,7 +89,7 @@ class ConnectionTest extends FlatSpec
 
     val store = documentStore("anicolaspp/mem")
 
-    val mutation = connection.newMutation()
+    val mutation = getConnection().newMutation()
       .increment("count", 5)
       .set("name", "pepe")
       .set("age", 29)
@@ -113,13 +113,13 @@ class ConnectionTest extends FlatSpec
 
     val store = documentStore("anicolaspp/mem")
 
-    val doc = connection.newDocument()
+    val doc = getConnection().newDocument()
       .set("name", "nico")
       .set("values", List.empty[Int])
 
     store.insert("1", doc)
 
-    val appendMutation = connection.newMutation()
+    val appendMutation = getConnection().newMutation()
       .append("values", List(1, 2, 3, 4, 5))
 
     store.update("1", appendMutation)
@@ -134,13 +134,13 @@ class ConnectionTest extends FlatSpec
 
     val store = documentStore("anicolaspp/mem")
 
-    val doc = connection.newDocument()
+    val doc = getConnection().newDocument()
       .set("name", "nico")
       .set("values", "testing".getBytes())
 
     store.insert("1", doc)
 
-    val appendMutation = connection.newMutation()
+    val appendMutation = getConnection().newMutation()
       .append("values", List("hello", "word").flatMap(_.getBytes()).toArray)
 
     store.update("1", appendMutation)
@@ -156,13 +156,13 @@ class ConnectionTest extends FlatSpec
 
     val store = documentStore("anicolaspp/mem")
 
-    val doc = connection.newDocument()
+    val doc = getConnection().newDocument()
       .set("name", "nico")
       .set("values", "testing")
 
     store.insert("1", doc)
 
-    val appendMutation = connection.newMutation()
+    val appendMutation = getConnection().newMutation()
       .append("values", " append string")
 
     store.update("1", appendMutation)
@@ -176,7 +176,7 @@ class ConnectionTest extends FlatSpec
   it should "delete" in {
     val store = documentStore("anicolaspp/mem")
 
-    val mutation = connection.newMutation()
+    val mutation = getConnection().newMutation()
       .increment("count", 5)
       .set("name", "pepe")
 
@@ -192,7 +192,7 @@ class ConnectionTest extends FlatSpec
   it should "decrement" in {
     val store = documentStore("anicolaspp/mem")
 
-    val mutation = connection.newMutation()
+    val mutation = getConnection().newMutation()
       .increment("count", 5)
       .set("name", "pepe")
       .decrement(FieldPath.parseFrom("count"), 1)
@@ -207,16 +207,16 @@ class ConnectionTest extends FlatSpec
   it should "find with query non-nested" in {
     val store = documentStore("anicolaspp/aaa")
 
-    val mutation = connection.newMutation()
+    val mutation = getConnection().newMutation()
       .increment("count", 5)
       .set("name", "pepe")
       .decrement(FieldPath.parseFrom("count"), 1)
 
     store.update("1", mutation)
 
-    val cond = connection.newCondition().is("name", QueryCondition.Op.EQUAL, "pepe").build()
+    val cond = getConnection().newCondition().is("name", QueryCondition.Op.EQUAL, "pepe").build()
 
-    val query = connection.newQuery()
+    val query = getConnection().newQuery()
       .where(cond)
       .select("count")
       .limit(10)
@@ -230,21 +230,21 @@ class ConnectionTest extends FlatSpec
   it should "find with query nested" in {
     val store = documentStore("anicolaspp/mem")
 
-    val mutation = connection.newMutation()
+    val mutation = getConnection().newMutation()
       .increment("count", 5)
       .set("name", "pepe")
       .decrement(FieldPath.parseFrom("count"), 1)
 
     store.update("1", mutation)
 
-    val cond = connection.newCondition()
+    val cond = getConnection().newCondition()
       .and()
-      .condition(connection.newCondition().is("name", QueryCondition.Op.EQUAL, "pepe").build())
-      .condition(connection.newCondition().is("count", QueryCondition.Op.EQUAL, 4).build())
+      .condition(getConnection().newCondition().is("name", QueryCondition.Op.EQUAL, "pepe").build())
+      .condition(getConnection().newCondition().is("count", QueryCondition.Op.EQUAL, 4).build())
       .close()
       .build()
 
-    val query = connection.newQuery()
+    val query = getConnection().newQuery()
       .where(cond)
       .select("count")
       .limit(10)
@@ -257,58 +257,58 @@ class ConnectionTest extends FlatSpec
 
   it should "create query from json" in {
 
-    val query = connection
+    val query = getConnection()
       .newQuery()
-      .where(connection
+      .where(getConnection()
         .newCondition()
         .is("name", QueryCondition.Op.EQUAL, "pepe")
         .build())
       .select("a", "b", "c")
       .build()
 
-    connection.newQuery(query.asJsonString()).asJsonString() should be(query.asJsonString())
+    getConnection().newQuery(query.asJsonString()).asJsonString() should be(query.asJsonString())
   }
 
   it should "create document from json" in {
 
-    val document = connection
+    val document = getConnection()
       .newDocument()
       .set("name", "pepe")
       .set("value", 5)
 
-    connection.newDocument(document.asJsonString()).asJsonString() should be(document.asJsonString())
+    getConnection().newDocument(document.asJsonString()).asJsonString() should be(document.asJsonString())
   }
 
   import com.mapr.ojai.store.impl.InMemoryDriver
 
   it should "use the InMemoryDriver" in {
 
-    InMemoryDriver.getClass should be(connection.getDriver.getClass)
+    InMemoryDriver.getClass should be(getConnection().getDriver.getClass)
   }
 
   it should "work with any store protocol" in {
 
     Try {
-      connection.getStore("asfasdf")
+      getConnection().getStore("asfasdf")
     }.isFailure should be(false)
     Try {
-      connection.getStore("anicolaspp")
+      getConnection().getStore("anicolaspp")
     }.isSuccess should be(true)
 
   }
 
   def parseC(doc: ojai.Document) = {
     if (doc.getMap("$ge") != null) {
-      val ge = connection.newDocument(doc.getMap("$ge"))
+      val ge = getConnection().newDocument(doc.getMap("$ge"))
 
-      connection.newDocument()
+      getConnection().newDocument()
         .set("_id", new String(ge.getBinary("$$row_key").array()))
     } else if (doc.getMap("$lt") != null) {
-      val ge = connection.newDocument(doc.getMap("$lt"))
+      val ge = getConnection().newDocument(doc.getMap("$lt"))
 
-      connection.newDocument()
+      getConnection().newDocument()
         .set("_id", new String(ge.getBinary("$$row_key").array()))
-    } else connection.newDocument()
+    } else getConnection().newDocument()
   }
 
   import scala.collection.JavaConversions._
@@ -318,11 +318,11 @@ class ConnectionTest extends FlatSpec
     val d = "{\"$and\":[{\"$ge\":{\"$$row_key\":{\"$binary\":\"AzE5NjY0MzYwNjI=\"}}}, {\"$lt\":{\"$$row_key\":{\"$binary\":\"AzUyOTI5NzI2Nw==\"}}}]}"
 
 
-    val doc: ojai.Document = connection.newDocument(d)
+    val doc: ojai.Document = getConnection().newDocument(d)
 
     val and = doc.getList("$and")
 
-    and.map(x => connection.newDocument(x))
+    and.map(x => getConnection().newDocument(x))
       .map(d => parseC(d).asJsonString())
       .foreach(println)
   }
@@ -335,16 +335,16 @@ class ConnectionTest extends FlatSpec
       "\"emails\":[{\"type\":25, \"address\": \"mpereira@mapr.com\"}, {\"type\":52}]\n" +
       "}\n"
 
-    val doc = connection.newDocument(existing)
+    val doc = getConnection().newDocument(existing)
 
     val store = documentStore("anicolaspp/test1")
     store.insert(doc)
-    store.insert(connection.newDocument().set("_id", "2").set("address", Map[String, String]("line1" -> "15501")))
+    store.insert(getConnection().newDocument().set("_id", "2").set("address", Map[String, String]("line1" -> "15501")))
 
 
     store.insert(
 
-      connection.newDocument(
+      getConnection().newDocument(
 
         "{\n" +
           "\"_id\": \"3\",\n" +
@@ -357,7 +357,7 @@ class ConnectionTest extends FlatSpec
 
     )
 
-    val query = connection.newQuery().select("_id", "address.line1", "address", "emails[].type", "emails[].t[].x", "emails[].t[].m")
+    val query = getConnection().newQuery().select("_id", "address.line1", "address", "emails[].type", "emails[].t[].x", "emails[].t[].m")
 
     println(query.asJsonString())
 
@@ -370,17 +370,17 @@ class ConnectionTest extends FlatSpec
   }
 
   it should "find in container fields" in {
-    val first = connection.newDocument("{\n  \"_id\": \"001\",\n  \"tasks\": [\n    {\"a\": \"t001\"},\n    {\"a\": \"t002\"}\n, {\"b\": \"t002\"}\n  ]\n}")
-    val second = connection.newDocument("{\n  \"_id\": \"002\",\n  \"tasks\": [\n    {\"a\": \"t003\"}\n  ]\n}")
+    val first = getConnection().newDocument("{\n  \"_id\": \"001\",\n  \"tasks\": [\n    {\"a\": \"t001\"},\n    {\"a\": \"t002\"}\n, {\"b\": \"t002\"}\n  ]\n}")
+    val second = getConnection().newDocument("{\n  \"_id\": \"002\",\n  \"tasks\": [\n    {\"a\": \"t003\"}\n  ]\n}")
 
     val store = documentStore("anicolaspp/containerfields")
 
     store.insert(first)
     store.insert(second)
 
-    val condition = connection.newCondition().is("tasks[].a", QueryCondition.Op.EQUAL, "t002").build()
+    val condition = getConnection().newCondition().is("tasks[].a", QueryCondition.Op.EQUAL, "t002").build()
 
-    val query = connection.newQuery().where(condition).build()
+    val query = getConnection().newQuery().where(condition).build()
 
     val result = store.find(query).asScala.toList
 
@@ -388,15 +388,15 @@ class ConnectionTest extends FlatSpec
   }
 
   it should "find in container field and ignored embedded" in {
-    val first = connection.newDocument("{\n  \"_id\": \"001\",\n  \"tasks\": [\n    {\"b\": \"t001\", \"a\": {\"a\": \"t002\"}\n},\n    {\"a\": \"t003\"}\n, {\"b\": \"t002\"}\n  ]\n}")
+    val first = getConnection().newDocument("{\n  \"_id\": \"001\",\n  \"tasks\": [\n    {\"b\": \"t001\", \"a\": {\"a\": \"t002\"}\n},\n    {\"a\": \"t003\"}\n, {\"b\": \"t002\"}\n  ]\n}")
 
     val store = documentStore("anicolaspp/containerfields2")
 
     store.insert(first)
 
-    val condition = connection.newCondition().is("tasks[].a", QueryCondition.Op.EQUAL, "t002").build()
+    val condition = getConnection().newCondition().is("tasks[].a", QueryCondition.Op.EQUAL, "t002").build()
 
-    val query = connection.newQuery().where(condition).build()
+    val query = getConnection().newQuery().where(condition).build()
 
     val result = store.find(query).asScala.toList
 
@@ -406,7 +406,7 @@ class ConnectionTest extends FlatSpec
   it should "insert binary id" in {
     val store = documentStore("anicolaspp/binary")
 
-    store.insert(new Values.BinaryValue(ByteBuffer.wrap("value".getBytes())), connection.newDocument().set("age", 30))
+    store.insert(new Values.BinaryValue(ByteBuffer.wrap("value".getBytes())), getConnection().newDocument().set("age", 30))
 
     store.find().asScala.toList.head.getInt("age") should be(30)
   }

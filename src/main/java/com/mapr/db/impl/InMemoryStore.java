@@ -3,6 +3,7 @@ package com.mapr.db.impl;
 import com.github.anicolaspp.ojai.InMemoryMutation;
 import com.github.anicolaspp.ojai.MultiPathProjector;
 import com.github.anicolaspp.ojai.ResultDocumentStream;
+import com.mapr.db.index.IndexFieldDesc;
 import com.mapr.ojai.store.impl.OjaiQuery;
 import org.ojai.Document;
 import org.ojai.DocumentStream;
@@ -17,6 +18,7 @@ import org.ojai.store.QueryCondition;
 import org.ojai.store.QueryResult;
 import org.ojai.store.exceptions.MultiOpException;
 import org.ojai.store.exceptions.StoreException;
+import scala.Tuple2;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -172,12 +174,23 @@ public class InMemoryStore implements DocumentStore {
                 .map(FieldPath::asJsonString)
                 .toArray(String[]::new);
 
+        Stream<Tuple2<FieldPath, IndexFieldDesc.Order>> ordering = ojaiQuery
+                .getOrderByFields()
+                .stream()
+                .map(field -> new Tuple2<>(field, ojaiQuery.getFieldOrdering(field)));
+
         Stream<Document> resultStream =
                 withCondition(documents.stream(), condition)
                         .map(doc -> project(doc, projectedFieldSet));
 
         return new ResultDocumentStream(withLimit(resultStream, limit), this.connection);
     }
+
+//    private Stream<Document> orderBy(Stream<Document> stream, Stream<Tuple2<FieldPath, IndexFieldDesc.Order>> ordering) {
+//        Tuple2<FieldPath, IndexFieldDesc.Order> first = ordering.findFirst().get();
+//
+//        stream.sorted((a, b) -> a.getValue(first._1). b.getValue(first._1))
+//    }
 
     private Stream<Document> withCondition(Stream<Document> stream, ConditionImpl condition) {
         if (condition == null || condition.getRoot() == null) {

@@ -1,16 +1,16 @@
 package tests
 
-import com.github.anicolaspp.ojai.OjaiTesting
+import com.github.anicolaspp.ojai.{OjaiTesting, ScalaOjaiTesting}
 import org.scalatest.{BeforeAndAfterEach, FlatSpec, Matchers}
 
 class ConnectionResetTest extends FlatSpec
-  with OjaiTesting
+  with ScalaOjaiTesting
   with Matchers
   with BeforeAndAfterEach {
 
   it should "insert clean up on reset" in {
     val store = documentStore("someStore")
-    store.insert(connection.newDocument().setId("hello"))
+    store.insert(getConnection().newDocument().setId("hello"))
 
 
     store.find().iterator().hasNext should be (true)
