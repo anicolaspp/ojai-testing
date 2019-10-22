@@ -1,5 +1,7 @@
 # ojai-testing
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.anicolaspp/ojai-testing_2.11/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.anicolaspp/ojai-testing_2.11) [![Build Status](https://travis-ci.org/anicolaspp/ojai-testing.svg?branch=master)](https://travis-ci.org/anicolaspp/ojai-testing)[![codecov](https://codecov.io/gh/anicolaspp/ojai-testing/branch/master/graph/badge.svg)](https://codecov.io/gh/anicolaspp/ojai-testing)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.github.anicolaspp/ojai-testing_2.11/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.github.anicolaspp/ojai-testing_2.11)
+[![Build Status](https://travis-ci.org/anicolaspp/ojai-testing.svg?branch=master)](https://travis-ci.org/anicolaspp/ojai-testing)
+[![codecov](https://codecov.io/gh/anicolaspp/ojai-testing/branch/master/graph/badge.svg)](https://codecov.io/gh/anicolaspp/ojai-testing)
 
 Embeded In-Memory Implementation of OJAI Driver to be used in testing
 
@@ -15,13 +17,13 @@ In order to use our in memory store we should first register the correct driver 
 Alternatively, you can mix in the `OjaiTesting` trait and it will automatically register our driver.
 
 ```scala
-class AutoRegisterForTest extends FlatSpec with OjaiTesting with Matchers {
+class AutoRegisterForTest extends FlatSpec with ScalaOjaiTesting with Matchers {
 
   it should "be ready" in {
 
-    connection.isInstanceOf[InMemoryConnection] should be (true)
+    getConnection().isInstanceOf[InMemoryConnection] should be (true)
 
-    connection.getStore("anicolaspp/mem") should be (storeHandler("anicolaspp/mem"))
+    getConnection().getStore("anicolaspp/mem") should be (documentStore("anicolaspp/mem"))
   }
 
 }
@@ -39,34 +41,34 @@ The `storeName` can be any name you want.
 There will be only a single instance per store name so the following holds.
 
 ```scala
-class SomeTests extends FlatSpec with OjaiTesting with Matchers {
+class SomeTests extends FlatSpec with ScalaOjaiTesting with Matchers {
 
   it should "keep track of stores" in {
-    val store = connection.getStore("anicolaspp/my_store")
+    val store = getConnection().getStore("anicolaspp/my_store")
 
-    store should be (connection.getStore("anicolaspp/my_store"))
+    store should be (getConnection().getStore("anicolaspp/my_store"))
     
-    storeHandler("anicolaspp/a_store") should be (connection.getStore("anicolaspp/a_store"))
+    documentStore("anicolaspp/a_store") should be (getConnection().getStore("anicolaspp/a_store"))
     
-    store should not be (storeHandler("anicolaspp/a_store"))
+    store should not be (documentStore("anicolaspp/a_store"))
   }
 }
 ```
 When running multiple tests, you can share the same store instance across all of them. 
 
 ```scala
-class ShareStoreTests extends FlatSpec with OjaiTesting with Matchers {
+class ShareStoreTests extends FlatSpec with ScalaOjaiTesting with Matchers {
 
   it should "keep values on store" in {
-    val store = connection.getStore("my_store")
+    val store = getConnection().getStore("my_store")
  
-    store.insert(connection.newDocument().setId("5"))
+    store.insert(getConnection().newDocument().setId("5"))
     
     store.find().iterator.hasNext() should be (true)
   }
   
    it should "has values on it" in {
-    val store = connection.getStore("my_store")
+    val store = getConnection().getStore("my_store")
 
     val it = store.find().iterator
     
@@ -81,13 +83,13 @@ However, this behavior might not desirable under certain conditions. In those ca
 
 ```scala
 class ConnectionResetTest extends FlatSpec
-  with OjaiTesting
+  with ScalaOjaiTesting
   with Matchers
   with BeforeAndAfterEach {
 
   it should "insert clean up on reset" in {
     val store = documentStore("someStore")
-    store.insert(connection.newDocument().setId("hello"))
+    store.insert(getConnection().newDocument().setId("hello"))
 
     store.find().iterator().hasNext should be (true)
 
@@ -103,10 +105,11 @@ class ConnectionResetTest extends FlatSpec
 }
 ```
 
-In order to clean after each test, you can use `override def beforeEach(): Unit = connection.close()`
+In order to clean after each test, you can use `override def beforeEach(): Unit = getConnection().close()`
 
 
-Notice we are mixing in the `OjaiTesting` trait to auto register the correct driver and to have access to `connection` and `storeHandler`.
+Notice we are mixing in the `ScalaOjaiTesting` trait to auto register the correct driver and to have access to 
+`getConnection` and `documentStore`.
 
 After we have gained access to the `DocumentStore` we should be able to run OJAI queries on it. 
 
@@ -114,14 +117,14 @@ After we have gained access to the `DocumentStore` we should be able to run OJAI
 object Run extends OjaiTesting {
 
  def run() = {
-  store = storeHandler
+  store = documentStore("someStore")
 
-  val doc = connection.newDocument().set("name", "nico").set("age", 30).set("_id", "1")
+  val doc = getConnection().newDocument().set("name", "nico").set("age", 30).set("_id", "1")
 
   store.insert(doc)
   assert(store.find().asScala.toList.length == 1)
 
-  store.insert(connection.newDocument().set("name", "nico").set("age", 30).set("_id", "2"))
+  store.insert(getConnection().newDocument().set("name", "nico").set("age", 30).set("_id", "2"))
   assert(store.find().asScala.toList.length == 2)
 
   store.delete("1")
@@ -144,11 +147,11 @@ object Run extends OjaiTesting {
 If you want to use this library from Java, that can be done without drawbacks since we have the same testing facilities ready to be used. 
 
 ```java
-public class JavaTesting implements JavaOjaiTesting {
+public class JavaTesting extends JavaOjaiTesting {
     
     @Test
     public void testGetConnection() {
-        assert connection() instanceof InMemoryConnection;
+        assert getConnection() instanceof InMemoryConnection;
     }
     
     @Test
@@ -158,7 +161,25 @@ public class JavaTesting implements JavaOjaiTesting {
 }
 ```
 
-Notice that by implementing `JavaOjaiTesting` we gain access to the same constructs, `connection()` and `documentStore()` and from here we just write our normal Java tests using the testing framework of your choice. 
+Notice that by implementing `JavaOjaiTesting` we gain access to the same constructs, `getConnection()` and 
+`documentStore()` and from here we just write our normal Java tests using the testing framework of your choice.
+
+If extending the test class with `JavaOjaiTesting` is not possible, it is also possible to use a composition.
+```java
+public class JavaTesting extends SomeOtherBaseClass {
+    private JavaOjaiTesting testObject = new JavaOjaiTesting();
+    
+    @Test
+    public void testGetConnection() {
+        assert testObject.getConnection() instanceof InMemoryConnection;
+    }
+    
+    @Test
+    public void testGetStore() {
+        assert testObject.documentStore("anicolaspp/java_store") instanceof InMemoryStore;
+    }
+}
+```
 
 ## Cross Build
 
