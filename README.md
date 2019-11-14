@@ -181,6 +181,38 @@ public class JavaTesting extends SomeOtherBaseClass {
 }
 ```
 
+## Connection options
+In some scenarios you can specify further options for the in memory ojai connection. These options are available:
+
+| Option | Description | Default |
+| ------ | ----------- | ------- |
+| `ojai.in-memory.store.clear-store-on-close` | As default the data in an in memory store will be cleared on closing the store. Set this option to `false` to preserve the state of the store after closing. | `true` |
+
+The options can be passed to `DriverManager.getConnection(url, options)`.
+
+`com.github.anicolaspp.ojai.ConnectionOptions` defines a constant for each option.
+
+```scala
+DriverManager.registerDriver(InMemoryDriver)
+val options = Json.newDocument().set(ConnectionOptions.clearStoreOnCloseOption, false)
+val connection = DriverManager.getConnection("ojai:anicolaspp:mem", options)
+```
+
+In Java `JavaOjaiTesting` also provides a easy access for creating connections with options.
+```Java
+public class Test extends JavaOjaiTesting {
+    public Test() {
+        super(false);
+    }
+
+    @Test
+    public void testGetConnection() {
+        Connection connection = getConnection()
+        // ...
+    }
+}
+```
+
 ## Cross Build
 
 This project is cross built for Scala `2.11.8` and `2.12.8`. Make sure you select the right version for your Scala.
