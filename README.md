@@ -11,7 +11,7 @@ MapR Database when running test suits.
 In order to use our in memory store we should first register the correct driver as follow.
 
 ```scala
- DriverManager.registerDriver(InMemDriver)
+ DriverManager.registerDriver(InMemoryDriver)
 ```
 
 Alternatively, you can mix in the `OjaiTesting` trait and it will automatically register our driver.
