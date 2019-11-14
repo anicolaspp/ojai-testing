@@ -35,11 +35,17 @@ public class InMemoryStore implements DocumentStore {
 
     private ArrayList<Document> documents = new ArrayList<>();
     private String storeName;
+    private boolean clearStoreOnClose;
 
-    public InMemoryStore(String storeName, Connection connection) {
+    public InMemoryStore(String storeName, Connection connection, boolean clearStoreOnClose) {
 
         this.storeName = storeName;
         this.connection = connection;
+        this.clearStoreOnClose = clearStoreOnClose;
+    }
+
+    public InMemoryStore(String storeName, Connection connection) {
+        this(storeName, connection, true);
     }
 
     @Override
@@ -658,7 +664,9 @@ public class InMemoryStore implements DocumentStore {
 
     @Override
     public void close() throws StoreException {
-        documents.clear();
+        if (clearStoreOnClose) {
+            documents.clear();
+        }
     }
 
     private void checkId(Value _id) {

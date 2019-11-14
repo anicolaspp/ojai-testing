@@ -6,7 +6,16 @@ import com.mapr.db.impl.InMemoryStore
 import org.ojai.store._
 import org.ojai.{Document, DocumentBuilder}
 
-class InMemoryConnection(driver: Driver) extends Connection {
+class InMemoryConnection(driver: Driver, options: Document) extends Connection {
+  private val clearStoreOnClose = {
+    var clearStoreOnClose = options.getBooleanObj(ConnectionOptions.clearStoreOnCloseOption)
+    if (clearStoreOnClose == null) {
+      clearStoreOnClose = true
+    }
+
+    clearStoreOnClose
+  }
+
   override def getValueBuilder: ValueBuilder = driver.getValueBuilder
 
   override def newDocument(): Document = driver.newDocument()
@@ -34,7 +43,8 @@ class InMemoryConnection(driver: Driver) extends Connection {
   }
 
   override def getStore(storeName: String): DocumentStore = {
-    val store = new InMemoryStore(storeName, this)
+
+    val store = new InMemoryStore(storeName, this, clearStoreOnClose)
 
     storeRegistry.putStore(storeName, store)
 
