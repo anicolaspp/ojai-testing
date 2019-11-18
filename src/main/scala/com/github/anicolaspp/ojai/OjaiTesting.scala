@@ -5,9 +5,9 @@ import org.ojai.store.{Connection, DocumentStore, DriverManager}
 
 trait OjaiTesting {
 
-  def getConnection(): Connection //= connection
+  def getConnection(): Connection
 
-  def documentStore(storeName: String): DocumentStore //= connection.getStore(storeName)
+  def documentStore(storeName: String): DocumentStore
 }
 
 trait ScalaOjaiTesting extends OjaiTesting {

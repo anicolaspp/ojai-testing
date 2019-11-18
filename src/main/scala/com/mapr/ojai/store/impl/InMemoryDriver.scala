@@ -40,6 +40,6 @@ object InMemoryDriver extends Driver {
 
   override def accepts(url: String) = url == "ojai:anicolaspp:mem"
 
-  override def connect(url: String, options: Document): Connection = new InMemoryConnection(this)
+  override def connect(url: String, options: Document): Connection = new InMemoryConnection(this, options)
 }
 

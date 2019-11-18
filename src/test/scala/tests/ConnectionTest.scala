@@ -2,14 +2,15 @@ package tests
 
 import java.nio.ByteBuffer
 
-import com.github.anicolaspp.ojai.{OjaiTesting, ScalaOjaiTesting}
+import com.github.anicolaspp.ojai.ScalaOjaiTesting
 import com.mapr.db.impl.InMemoryStore
 import com.mapr.ojai.store.impl.Values
 import org.ojai
 import org.ojai.FieldPath
-import org.ojai.store.{QueryCondition, SortOrder}
+import org.ojai.store.QueryCondition
 import org.scalatest.{BeforeAndAfterEach, FlatSpec, Matchers}
 
+import scala.collection.JavaConversions._
 import scala.util.Try
 
 class ConnectionTest extends FlatSpec
@@ -106,8 +107,6 @@ class ConnectionTest extends FlatSpec
 
     store.findById("1").getInt("count") should be(10)
   }
-
-  import scala.collection.JavaConversions._
 
   it should "append in list" in {
 
@@ -411,7 +410,3 @@ class ConnectionTest extends FlatSpec
     store.find().asScala.toList.head.getInt("age") should be(30)
   }
 }
-
-
-
-
