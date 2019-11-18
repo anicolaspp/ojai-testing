@@ -225,12 +225,12 @@ This project is cross built for Scala `2.11.8` and `2.12.8`. Make sure you selec
 <dependency>
   <groupId>com.github.anicolaspp</groupId>
   <artifactId>ojai-testing_2.X</artifactId>
-  <version>1.0.11</version>
+  <version>1.0.12</version>
 </dependency>
 ```
 
 ### SBT
 
 ```sbt
-libraryDependencies += "com.github.anicolaspp" % "ojai-testing_2.X" % "1.0.11"
+libraryDependencies += "com.github.anicolaspp" % "ojai-testing_2.X" % "1.0.12"
 ```
