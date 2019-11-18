@@ -6,7 +6,7 @@ import org.ojai.json.Json
 import org.ojai.store.DriverManager
 import org.scalatest.{BeforeAndAfterEach, FlatSpec, Matchers}
 
-class ConnectionResetTest extends FlatSpec
+class StoreResetTest extends FlatSpec
   with ScalaOjaiTesting
   with Matchers
   with BeforeAndAfterEach {

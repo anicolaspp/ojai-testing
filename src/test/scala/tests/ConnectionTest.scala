@@ -2,12 +2,13 @@ package tests
 
 import java.nio.ByteBuffer
 
-import com.github.anicolaspp.ojai.ScalaOjaiTesting
+import com.github.anicolaspp.ojai.{ConnectionOptions, ScalaOjaiTesting}
 import com.mapr.db.impl.InMemoryStore
 import com.mapr.ojai.store.impl.Values
 import org.ojai
 import org.ojai.FieldPath
-import org.ojai.store.QueryCondition
+import org.ojai.json.Json
+import org.ojai.store.{DriverManager, QueryCondition}
 import org.scalatest.{BeforeAndAfterEach, FlatSpec, Matchers}
 
 import scala.collection.JavaConversions._
@@ -408,5 +409,29 @@ class ConnectionTest extends FlatSpec
     store.insert(new Values.BinaryValue(ByteBuffer.wrap("value".getBytes())), getConnection().newDocument().set("age", 30))
 
     store.find().asScala.toList.head.getInt("age") should be(30)
+  }
+
+  it should "closing the connection means cleaning all stores - ignore store options" in {
+    DriverManager.registerDriver(InMemoryDriver)
+    val options = Json.newDocument().set(ConnectionOptions.clearStoreOnCloseOption, false)
+
+    val connection = DriverManager.getConnection("ojai:anicolaspp:mem", options)
+
+    val store1 = connection.getStore("store_1")
+    store1.insert(connection.newDocument().set("_id", "1"))
+
+    val store2 = connection.getStore("store_2")
+    store2.insert(connection.newDocument().set("_id", "1"))
+
+    store1.close()
+    store2.close()
+
+    connection.getStore("store_1").find().iterator().hasNext should be (true)
+    connection.getStore("store_2").find().iterator().hasNext should be (true)
+
+    connection.close()
+
+    connection.getStore("store_1").find().iterator().hasNext should be (false)
+    connection.getStore("store_2").find().iterator().hasNext should be (false)
   }
 }
