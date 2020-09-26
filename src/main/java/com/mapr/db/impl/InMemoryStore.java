@@ -189,7 +189,7 @@ public class InMemoryStore implements DocumentStore {
                 withCondition(documents.stream(), condition)
                         .map(doc -> project(doc, projectedFieldSet));
 
-        return new ResultDocumentStream(withLimit(resultStream, limit), this.connection);
+        return ResultDocumentStream.apply(withLimit(resultStream, limit), this.connection);
     }
 
 //    private Stream<Document> orderBy(Stream<Document> stream, Stream<Tuple2<FieldPath, IndexFieldDesc.Order>> ordering) {
@@ -216,7 +216,7 @@ public class InMemoryStore implements DocumentStore {
 
     @Override
     public DocumentStream find() throws StoreException {
-        return new ResultDocumentStream(documents.stream(), this.connection);
+        return ResultDocumentStream.apply(documents.stream(), this.connection);
     }
 
     @Override

@@ -9,7 +9,7 @@ import org.ojai.{Document, DocumentBuilder}
 class InMemoryConnection(driver: Driver, options: Document) extends Connection {
   private val clearStoreOnClose =
     Option(options.getBooleanObj(ConnectionOptions.clearStoreOnCloseOption))
-      .fold(true)(shouldClose => shouldClose)
+      .fold(true)(identity(_))
 
   override def getValueBuilder: ValueBuilder = driver.getValueBuilder
 
