@@ -6,6 +6,7 @@ import org.ojai.store.Connection;
 
 import java.util.Arrays;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 public class LinearProjector implements PathProjector {
     private Document document;
@@ -40,7 +41,7 @@ public class LinearProjector implements PathProjector {
     }
     
     private String getNextSegments(String[] pathSegments) {
-        return Arrays.stream(pathSegments).skip(1).reduce("", (a, b) -> a + b);
+        return Arrays.stream(pathSegments).skip(1).collect(Collectors.joining("."));
     }
     
     private Document getFinalDocument(String firstSegment) {
